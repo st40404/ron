@@ -1,0 +1,12 @@
+1.set your rviz
+  a.open rviz 
+  b.add LaserScan->select your topic(scan)
+  c.choose your fixed Frame(check name by open a new terminal type rqt, select Plugins/configuration/Dynamic Reconfigure, choose your package and check )
+
+2.launch your own rviz  
+  a.put rviz into your ws/src/<pkg name>/src
+  b.go to your laun and add "<node pkg="rviz" name="up_to_u" type="rviz" args="-d /home/ron/hokuyo_ws/src/urg_node/src/laser.rviz" required="true"/>"
+3.roslaunch your launch and you can see your rviz
+
+
+

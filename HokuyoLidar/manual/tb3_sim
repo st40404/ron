@@ -1,0 +1,60 @@
+reference webside : https://automaticaddison.com/how-to-launch-the-turtlebot3-simulation-with-ros/#gazebo
+
+1.Install Gazebo 
+	If you install Unbuntu 18.04 and you already have Gezebo9
+
+2.download dependent packages of tb3
+	go to your workspace/src
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3.git
+	cd .. && catkin_make
+
+3.download tb3 simulation files
+	go to your workspace/src
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+	cd .. && catkin_make
+
+4.decide your model(there are three model : burger, waffle, waffle_pi)
+	export TURTLEBOT3_MODEL=burger
+
+5.simulation 
+	a.rviz
+		1.show tb3 in rviz
+			roslaunch turtlebot3_fake turtlebot3_fake.launch
+		2.control tb3 in rviz
+			roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+	b.gazebo
+		1.show tb3 in gazebo
+			roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
+		2.control tb3 in gazebo
+			roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+6.simulation in rziv using gmapping
+
+	a. install gmapping in your ros
+		sudo apt install ros-melodic-slam-gmapping
+	b. open your env in gazebo
+		roslaunch turtlebot3_gazebo turtlebot3_world.launch
+	c. using rviz to get your scan to make a map
+		roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+
+7.automatical navigation and mapping
+
+	roslaunch turtlebot3_gazebo turtlebot3_simulation.launch
+
+6.add your environment
+	create a new package as your world package
+	put the world in the pkg you just create
+	type follow to add your path to gazebo 
+		export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:~/test_env/src/env_wrs/models
+
+	
+  
+
+
+
+
+
+
+

@@ -1,0 +1,64 @@
+1.can't open rviz
+  the error code : Stereo is NOT SUPPORTED
+  terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_M_construct null not valid
+  Aborted (core dumped)
+  reboot.......
+
+2.laserscan's frame_ID error in rviz 
+  open new terminal and type rqt
+  select Plugins/configuration/Dynamic Reconfigure
+  choose your package and change your frame_ID same with your frame_ID in rviz
+
+3.tb3 package catkin_make error
+  the error message as follow:
+
+  CMake Error at /opt/ros/melodic/share/catkin/cmake/catkinConfig.cmake:83 (find_package):
+  Could not find a package configuration file provided by "turtlebot3_msgs"
+  with any of the following names:
+    turtlebot3_msgsConfig.cmake
+    turtlebot3_msgs-config.cmake
+
+  go to your /workspace/src and type 
+  git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+  git clone https://github.com/ROBOTIS-GIT/turtlebot3.git
+  and catkin_make
+
+4.open gazebo and there is an error as follow
+
+  [Err] [REST.cc:205] Error in REST request
+
+  vim ~/.gazebo/.ignition/fuel/config.yaml
+  change
+  url: https://api.ignitionfuel.org
+  to 
+  url: https://api.ignitionrobotics.org
+
+5.gazebo execute error
+  the error message as follow
+
+  [gazebo-2] process has died [pid 13313, exit code 255, cmd /opt/ros/melodic/lib/gazebo_ros/gzserver -e ode /home/ron/tb3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/worlds/empty.world __name:=gazebo __log:=/home/ron/.ros/log/dc23e512-4a4a-11ea-a813-e0d55e8788d9/gazebo-2.log].
+
+  killall gzserver
+  kilall gzclient (this cmd have error msg, but the upper cmd already solve the problem)
+
+
+
+
+
+
+
+
+
+
+
+
+6.update gazebo from 9.0 to 9.12
+
+export GAZEBO_MODEL_PATH=
+export GAZEBO_RESOURCE_PATH= 
+add your model to ~/.gazebo/models
+ 
+
+
+

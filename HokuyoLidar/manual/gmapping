@@ -1,0 +1,7 @@
+1.download slam_gmapping package from below address
+  a.https://github.com/ros-perception/slam_gmapping
+  b.unzip this package and put into your ws
+
+2.catkin_make your ws and there is an open_gmapping error. So install gmapping form apt-get
+  a.sudo apt-get install ros-<version>-slam-gmapping
+

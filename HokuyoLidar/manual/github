@@ -1,0 +1,20 @@
+first time
+1. go to the location of your folder
+2. echo "# ron" >> README.md
+3. git init
+4. git add README.md
+5. git commit -m "first commit"
+6. git remote add origin https://github.com/st40404/ron.git
+7. git push -u origin master
+  
+
+delete all of your file in your folder as folllow : .rst, LISENCE, .git, .gitignore
+
+second time
+1. go to the location of your folder
+2. git commit -m "first commit"
+3. git add .
+4. git push -u origin master
+
+
+
