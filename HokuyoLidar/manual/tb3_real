@@ -1,9 +1,15 @@
 reference webside : 
 
-1.Install Gazebo 
+1. Install Ubuntu in your NUC
+2. create your workspace and put your pkg in your ws
+3. go to your turtlebot3_bringup pkg and open 99-turtlebot3-cdc.rules
+4. put openCR connect permisstion to your computer 
+	(reference in turtlebot3_bringup/99-turtlebot3-cdc)
+	cp 99-turtlebot3-cdc.rules /etc/udev/rules.d/
+	sudo udevadm control --reload-rules
+	sudo udevadm trigger
 
-
-
+ 
 
 
 
