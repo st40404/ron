@@ -1,3 +1,5 @@
+####  URM-40LC EW  ####
+
 1.install driver according to your ubuntu version
   #sudo apt-get install ros-kinetic-urg-node
 
@@ -8,4 +10,12 @@
 
 4.set ethernet usb IP different with 192.168.0.10
 
+
+####  UTM-30LX  ####
+
+1.install driver according to your ubuntu version
+  #sudo apt-get install ros-kinetic-urg-node
+2.if you are the uper version than kinetic, go to https://github.com/ros-drivers/urg_node to    download this package and put into your package.
+3.give your ttyACM the highest permission
+sudo chmod 777 /dev/ttyACMx
 
