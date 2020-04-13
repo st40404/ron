@@ -42,6 +42,19 @@
   killall gzserver
   kilall gzclient (this cmd have error msg, but the upper cmd already solve the problem)
 
+6.node get param from launch 
+	the error message as follow
+	[tf_new-2] process has died [pid 6421, exit code -6, cmd /home/ron/multi_lidar/devel/lib/add_tf/frame_tf_broadcaster __name:=tf_new __log:=/home/ron/.ros/log/3245fd16-7d79-11ea-8a5d-e0d55e8788d9/tf_new-2.log].
+	
+	add param in your launch(the name of param cant include sign)
+	in your node 
+		add the class member
+		  	ros::NodeHandle node;
+		announce param and set the param in this node
+			double new_x;
+			node.getParam("newx",  new_x);
+		
+
 
 
 
