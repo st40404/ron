@@ -12,8 +12,8 @@ delete all of your file in your folder as folllow : .rst, LISENCE, .git, .gitign
 
 second time
 1. go to the location of your folder
-2. git commit -m "first commit"
-3. git add .
+2. git add .
+3. git commit -m "first commit"
 4. git push -u origin master
 
 

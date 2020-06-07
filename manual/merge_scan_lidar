@@ -1,0 +1,15 @@
+source: https://www.youtube.com/watch?v=JHWlGy_JhJI
+   git: https://github.com/iralabdisco/ira_laser_tools
+
+1.add two new tf base on base_link
+2.set two lidar base on the two new tf
+	
+3.add pkg(ira_laser_tools)
+4.change your param
+	set your tf link
+       <param name="destination_frame" value="base_link" />	
+       <param name="cloud_destination_topic" value="/merged_cloud" />
+	set your topic name of merge two scan 
+       <param name="scan_destination_topic"  value="/scan_multi" />
+	set two scan topic which you want to merge
+       <param name="laserscan_topics" value="/scan2 /scan" />

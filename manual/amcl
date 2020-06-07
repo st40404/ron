@@ -1,0 +1,20 @@
+reference webside : https://www.itread01.com/content/1549495805.html
+
+
+1.save the map you make
+	install map-server
+		sudo apt-get install ros-melodic-mapserver
+	save the map
+		rosrun map_server map_saver -f test
+
+
+
+	
+  
+
+
+
+
+
+
+

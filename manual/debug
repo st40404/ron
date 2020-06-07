@@ -40,7 +40,7 @@
   [gazebo-2] process has died [pid 13313, exit code 255, cmd /opt/ros/melodic/lib/gazebo_ros/gzserver -e ode /home/ron/tb3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/worlds/empty.world __name:=gazebo __log:=/home/ron/.ros/log/dc23e512-4a4a-11ea-a813-e0d55e8788d9/gazebo-2.log].
 
   killall gzserver
-  kilall gzclient (this cmd have error msg, but the upper cmd already solve the problem)
+  killall gzclient (this cmd have error msg, but the upper cmd already solve the problem)
 
 6.node get param from launch 
 	the error message as follow

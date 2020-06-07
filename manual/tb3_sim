@@ -43,11 +43,33 @@ reference webside : https://automaticaddison.com/how-to-launch-the-turtlebot3-si
 
 	roslaunch turtlebot3_gazebo turtlebot3_simulation.launch
 
-6.add your environment
+8.add your environment
 	create a new package as your world package
 	put the world in the pkg you just create
 	type follow to add your path to gazebo 
 		export GAZEBO_MODEL_PATH=${GAZEBO_MODEL_PATH}:~/test_env/src/env_wrs/models
+
+9.save the map you make
+	install map-server
+		sudo apt-get install ros-melodic-mapserver
+	save the map
+		rosrun map_server map_saver -f test
+10.use turtlebot3 navigation
+	install move_base
+		sudo apt-get install ros-melodic-move-base
+	install dwa-local-planner
+		sudo apt-get install ros-melodic-dwa-local-planner
+	roslaunch your navigation laubch and give the ori map
+		roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/tb3_ws/tb3_hse.yaml
+
+	change the robot detect range, obstacle range
+	go to param/costmap_common_parameter_waffle.yaml to set
+		obstacle_range: 3.0     ## robot detect range
+		inflation_radius: 0.5   ## obstacle range
+		
+	
+
+
 
 	
   
