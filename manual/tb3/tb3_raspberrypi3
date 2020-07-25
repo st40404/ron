@@ -1,0 +1,66 @@
+When you get a raspberry pi 3 with ubuntu 18.04 
+
+1.Install google(In my way, I prefer use chrome)
+	sudo apt-get install chromium-browser
+
+2.Install ros
+	search the method to install melodic from ros-wiki
+
+3.Download dependent packages of tb3
+	go to your workspace/src
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3.git
+	cd .. && catkin_make
+
+4.Download tb3 simulation files
+	go to your workspace/src
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+	cd .. && catkin_make
+
+5.Decide your model(there are three model : burger, waffle, waffle_pi)
+	export TURTLEBOT3_MODEL=burger
+
+6.Test this pkg can work or not
+	a.Show tb3 in gazebo
+		roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
+	b.Control tb3 in gazebo
+		roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+7.If it's work, then try to use in the reality
+	a.If this is your first time control tb3 in this pc, then do the following step 
+		put openCR connect permisstion to your computer 
+		(reference in turtlebot3_bringup/99-turtlebot3-cdc)
+		1.cp 99-turtlebot3-cdc.rules /etc/udev/rules.d/
+		2.sudo udevadm control --reload-rules
+		3.sudo udevadm trigger
+	b.Give the tb3 power first and then give the USB signal
+		1.Give the permission of the tb3
+			sudo chmod 777 /dev/ttyACM0
+		2.Start the tb3 driver
+			roslaunch turtlebot3_bringup turtlebot3_core.launch
+		3.Control the motion of tb3
+			roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+8.Using two Hokuyo lidar(UTM-30LX)
+	a.Put urg_node, ira_laser_tools, add_tf three pkg in your workspace
+	b.Install relative pkg of lidar's driver
+		sudo apt-get install ros-melodic-urg-node
+		cd .. && catkin_make
+	c.Try to use Lidar
+		roslaunch urg_node urg_lidar.launch
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+clone the tb3_ws_robot workspace from github

@@ -1,0 +1,45 @@
+reference webside : 
+
+1. Install Ubuntu in your NUC
+2. create your workspace and put your pkg in your ws
+3. go to your turtlebot3_bringup pkg and open 99-turtlebot3-cdc.rules
+4. put openCR connect permisstion to your computer 
+	(reference in turtlebot3_bringup/99-turtlebot3-cdc)
+	cp 99-turtlebot3-cdc.rules /etc/udev/rules.d/
+	sudo udevadm control --reload-rules
+	sudo udevadm trigger
+
+
+5.use turtlebot3 navigation
+	#####  use by install
+	install move_base
+		sudo apt-get install ros-melodic-move-base
+	install dwa-local-planner
+		sudo apt-get install ros-melodic-dwa-local-planner
+	roslaunch your navigation laubch and give the ori map
+		roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/tb3_ws/tb3_hse.yaml
+	
+	##### use by download pkg
+	download pkg from
+		git clone https://github.com/ros-planning/navigation.git
+	put in your pkg
+
+	install tf2-sensor-maneger
+		sudo apt-get install ros-melodic-tf2-sensor-maneger
+	install navigation_msgs and put it in your pkg
+		git clone https://github.com/ros-planning/navigation_msgs.git
+
+
+
+
+	change the robot detect range, obstacle range
+	go to param/costmap_common_parameter_waffle.yaml to set
+		obstacle_range: 3.0     ## robot detect range
+		inflation_radius: 0.5   ## obstacle range
+
+ 
+
+
+
+
+

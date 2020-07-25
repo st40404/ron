@@ -1,0 +1,39 @@
+1.Remove python2.7
+	sudo apt purge -y python2.7-minimal
+	sudo apt install -y python3-pip
+	sudo ln -s /usr/bin/pip3 /usr/bin/pip
+	python --version
+
+2.How to change default python version?
+	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+	update-alternatives --install /usr/bin/python python /usr/bin/python3.4 2
+	update-alternatives --list python
+	update-alternatives --config python
+	and choose your priority
+
+### CUDNN  ######
+
+3.If you already install cuda10.1, and install correspond cudnn7.65
+	install cudnn from https://developer.nvidia.com/rdp/cudnn-download
+	extract your tgz by $tar -xvf name
+	sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
+	sudo cp cuda/lib64/lib* /usr/local/cuda/lib64/
+
+   	cd /usr/local/cuda/lib64/
+	sudo chmod +r libcudnn.so.7.6.5
+	sudo ln -sf libcudnn.so.7.6.5 libcudnn.so.7
+	sudo ln -sf libcudnn.so.7 libcudnn.so
+	sudo ldconfig
+
+4.install correspond tensorflow-gpu-1.14
+	pip3 install tensorflow==1.14	
+
+
+  
+
+
+
+
+
+
+

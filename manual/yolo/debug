@@ -1,0 +1,39 @@
+1.How to check version of cuda, cudnn, tensorflow?
+	cuda verison
+	cat /usr/local/cuda/version.txt
+
+	cudnn verison
+	cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+	
+	tensorflow version
+	go the your correspond python 
+	import tensorflow as tf
+	print(tf.__version__)
+
+2.Remove python2.7
+	sudo apt purge -y python2.7-minimal
+
+3.There is no catkin_make, and install catkin_make there is a error as follow
+	E: Unable to correct problems, you have held broken packages.
+
+	solve:
+	sudo apt-get install ros-melodic-catkin
+	sudo apt install catkin
+	sudo apt-get update
+	sudo apt-get upgrade
+	source /opt/ros/melodic/setup.bash
+	
+
+	
+
+	
+
+	
+  
+
+
+
+
+
+
+
