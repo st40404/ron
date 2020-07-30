@@ -42,12 +42,47 @@ When you get a raspberry pi 3 with ubuntu 18.04
 			roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
 
 8.Using two Hokuyo lidar(UTM-30LX)
-	a.Put urg_node, ira_laser_tools, add_tf three pkg in your workspace
+	a.Put urg_node, ira_laser_tools, add_tf three pkg from tb3_ws_robot to your workspace
 	b.Install relative pkg of lidar's driver
 		sudo apt-get install ros-melodic-urg-node
 		cd .. && catkin_make
 	c.Try to use Lidar
 		roslaunch urg_node urg_lidar.launch
+9.Using hector slam
+	a.Install hector slam
+		sudo apt-get install ros-melodic-hector-*
+	b.Change the setting of /ws/src/turtlebot3/turtlebot3_slam/launch/turtlebot3_hector.launch
+		change odom_frame, base_frame and scan_topic
+		to base_link, base_link and scan_topic		
+	c.Open your driver of lidar and tb3
+	d.Open hector slam
+		roslaunch turtlrbot3_slam turtlebot3_slam.launch slam_method:=hector
+	e.Save the map you make
+		1.Install map-server
+			sudo apt-get install ros-melodic-map-server
+		2.Save the map
+			rosrun map_server map_saver -f test
+10.Use turtlebot3 navigation
+	a.Install move_base
+		sudo apt-get install ros-melodic-move-base
+	b.Install dwa-local-planner
+		sudo apt-get install ros-melodic-dwa-local-planner
+	c.Install tf2-sensor-maneger
+		sudo apt-get install ros-melodic-tf2-sensor-maneger
+	d.Put amcl pkg and move_base from tb3_ws_robot to your workspace
+	e.Change the setting of /ws/src/turtlebot3/turtlebot3_navigation/launch/turtlebot3_navigation.launch 
+		from  <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+		to  <include file="$(find amcl)/launch/amcl_omni.launch"/>
+
+	f.Launch your navigation launch and give the ori map
+		roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/tb3_ws_RaspberryPi3/test.yaml
+
+	g.You can change the robot detect range, obstacle range
+		go to param/costmap_common_parameter_waffle.yaml to set
+			obstacle_range: 3.0     ## robot detect range
+			inflation_radius: 0.5   ## obstacle range
+
+	
 
 
 

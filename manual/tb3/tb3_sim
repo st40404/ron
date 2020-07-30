@@ -51,7 +51,7 @@ reference webside : https://automaticaddison.com/how-to-launch-the-turtlebot3-si
 
 9.save the map you make
 	install map-server
-		sudo apt-get install ros-melodic-mapserver
+		sudo apt-get install ros-melodic-map-server
 	save the map
 		rosrun map_server map_saver -f test
 10.use turtlebot3 navigation
