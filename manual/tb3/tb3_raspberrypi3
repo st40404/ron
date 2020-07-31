@@ -78,7 +78,7 @@ When you get a raspberry pi 3 with ubuntu 18.04
 		roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/tb3_ws_RaspberryPi3/test.yaml
 
 	g.You can change the robot detect range, obstacle range
-		go to param/costmap_common_parameter_waffle.yaml to set
+		go to /turtlebot3/turtlebot3_navigation/param/costmap_common_parameter_waffle.yaml to set
 			obstacle_range: 3.0     ## robot detect range
 			inflation_radius: 0.5   ## obstacle range
 
