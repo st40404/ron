@@ -7,8 +7,8 @@
 2.How to change default python version?
 	update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 	update-alternatives --install /usr/bin/python python /usr/bin/python3.4 2
-	update-alternatives --list python
-	update-alternatives --config python
+	sudo update-alternatives --list python
+	sudo update-alternatives --config python
 	and choose your priority
 
 ### CUDNN  ######

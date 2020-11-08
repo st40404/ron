@@ -1,0 +1,8 @@
+install webcam driver
+1.sudo apt-get update -y
+2.sudo apt-get install -y webcam
+3.webcam
+ 
+install webcam driver package
+1.git clone https://github.com/ros-drivers/usb_cam.git
+2.roslaunch usb_cam usb_cam-test.launch

@@ -15,13 +15,16 @@
 
 3.There is no catkin_make, and install catkin_make there is a error as follow
 	E: Unable to correct problems, you have held broken packages.
-
-	solve:
-	sudo apt-get install ros-melodic-catkin
-	sudo apt install catkin
-	sudo apt-get update
-	sudo apt-get upgrade
-	source /opt/ros/melodic/setup.bash
+	solve1:
+		sudo apt-get install ros-melodic-catkin
+		sudo apt install catkin
+		sudo apt-get update
+		sudo apt-get upgrade
+		source /opt/ros/melodic/setup.bash
+	solve2:
+		pip install --user catkin_pkg
+		pip install --user rosdep rosinstall_generator wstool rosinstall six vcstools
+		pip install --user pydot
 	
 
 	

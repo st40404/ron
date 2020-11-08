@@ -1,0 +1,12 @@
+1.catkin realsense pkg:  Could not find a package configuration file provided by
+    "ddynamic_reconfigure" with any of the following names: 
+    ddynamic_reconfigureConfig.cmake
+    ddynamic_reconfigure-config.cmake
+
+    install ddynamic_reconfigure
+        https://github.com/pal-robotics/ddynamic_reconfigure.git
+        
+
+    
+
+

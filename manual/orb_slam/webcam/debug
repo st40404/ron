@@ -1,0 +1,13 @@
+1.Could not contact ROS master at [http://localhost:11311], retrying...
+	you need to execute roscore
+2.Roscore have error: No module named ‘defusedxml‘
+	you need to install defusedxml
+		sudo apt-get install python-defusedxml
+	if it is not work, try to find the path of python
+		ls -n /usr/bin/python
+	if there have path, mean the pytohn path is point to your python version
+		sudo rm -rf /usr/bin/python
+	give the new python path
+		sudo ln -s /usr/bin/python3 /usr/bin/python
+	install defusdxml
+		pip3 install defusedxml
