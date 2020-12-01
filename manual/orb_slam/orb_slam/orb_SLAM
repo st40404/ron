@@ -1,0 +1,30 @@
+reference: https://github.com/raulmur/ORB_SLAM
+
+1. use the Boost library to launch the different threads of our SLAM system
+    sudo apt-get install libboost-all-dev 
+2.Install OpenCV2.4 (notyet)
+
+3.Compile g2o you will need to have installed Eigen3
+    sudo apt-get install libeigen3-dev
+4.Download orb_slam pkg
+    git clone https://github.com/raulmur/ORB_SLAM.git ORB_SLAM
+    
+reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ros-melodic-606e668deffa
+
+1.install webcam driver
+    sudo apt install ros-melodic-usb-cam
+
+2.test your cam
+    roslaunch usb_cam usb_cam-test.launch
+
+3.install calibration dependencies
+    rosdep install camera_calibration
+
+4.try to use calibration
+    rosrun camera_calibration cameracalibrator.py --size 7x7 --square 0.045 image:=/usb_cam/image_raw camera:=/usb_cam
+
+5.
+
+
+
+
