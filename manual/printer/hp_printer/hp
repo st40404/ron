@@ -1,0 +1,3 @@
+wget https://nchc.dl.sourceforge.net/project/hplip/hplip/3.21.2/hplip-3.21.2.run
+chmod -R 755 hplip-3.21.2.run
+./hplip-3.21.2.run

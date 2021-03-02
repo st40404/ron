@@ -20,7 +20,7 @@
     sudo  apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml ros-melodic-cv-bridge
 
   make a new workspace as follow
-      mkdir catkin_workspace
+      mkdir -p catkin_workspace/src
       cd catkin_workspace
       catkin init
       catkin config -DPYTHON_EXECUTABLE=/usr/bin/python3 -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libboost_python3-py36.so
@@ -43,7 +43,11 @@
       sys.path.insert(2, '/home/ron/orb_slam/install/lib/python3/dist-packages/')
       from cv_bridge.boost.cv_bridge_boost import getCvType
 
-
 3. module 'enum' has no attribute 'IntFlag': clean the setting of PYTHONPATH 
       unset PYTHONPATH
       echo $PYTHONPATH
+
+4.How to change default python version?
+    sudo update-alternatives --list python
+    sudo update-alternatives --config python
+    and choose your priority
