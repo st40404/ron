@@ -51,3 +51,5 @@
     sudo update-alternatives --list python
     sudo update-alternatives --config python
     and choose your priority
+    
+

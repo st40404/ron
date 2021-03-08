@@ -6,3 +6,5 @@ install webcam driver
 install webcam driver package
 1.git clone https://github.com/ros-drivers/usb_cam.git
 2.roslaunch usb_cam usb_cam-test.launch
+
+

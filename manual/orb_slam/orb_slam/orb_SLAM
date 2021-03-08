@@ -1,7 +1,7 @@
 reference: https://github.com/raulmur/ORB_SLAM
 
 1. use the Boost library to launch the different threads of our SLAM system
-    sudo apt-get install libboost-all-dev 
+    sudo apt-get install libboost-all-dev  
 2.Install OpenCV2.4 (notyet)
 
 3.Compile g2o you will need to have installed Eigen3
