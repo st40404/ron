@@ -51,5 +51,9 @@
     sudo update-alternatives --list python
     sudo update-alternatives --config python
     and choose your priority
-    
+
+5.when running orb_slam2_mono_new and get stuck in: Listening for camera info on topic /usb_ca/camera_info
+    go to orb_slam_2_ros/ros/src/MonoNode.cc 
+    and change the camera/image_raw as usb_cam/image_raw
+    and change the camera/image_info as usb_cam/image_info
 
