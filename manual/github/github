@@ -22,8 +22,11 @@ second time
 
 
 
-second time
-1. go to the location of your folder
-2. git add .
-3. git commit -m "first commit"
-4. git push -u origin main
+second time new
+git remote add origin https://github.com/st40404/ORB_SLAM2.git
+git branch -M main
+git push -u origin main
+
+git remote add origin https://github.com/st40404/ORB_SLAM2.git
+git branch -M main
+git push -u origin main
