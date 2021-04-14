@@ -76,11 +76,15 @@
 9.make your node excutable 
     chmod +x camera.py
 
-10.excute each node and check
+10.change to pkg name from camera to usb_cam in ros/src/Mononode.cc file
+    change /camera/camera_info   to   /usb_cam/camera_info
+    change /camera/image_raw     to   /usb_cam/image_raw
+
+11.excute each node and check
     roslaunch usb_cam usb_cam-test.launch
     roslaunch orb_slam2_ros orb_slam2_mono_new.launch
     rosrun orb_slam2_ros camera.py 
     rosrun rviz rviz
 
-11.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
+12.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
 
