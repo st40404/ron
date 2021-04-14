@@ -1,4 +1,4 @@
-first time
+#######    first time
 1. go to the location of your folder
 2. echo "# ron" >> README.md
 3. git init
@@ -10,7 +10,7 @@ first time
 
 delete all of your file in your folder as folllow : .rst, LISENCE, .git, .gitignore
 
-second time
+#######    second time
 1. go to the location of your folder
 2. git add .
 3. git commit -m "first commit"
@@ -22,7 +22,7 @@ second time
 
 
 
-second time new
+#######    second time new
 git remote add origin https://github.com/st40404/ORB_SLAM2.git
 git branch -M main
 git push -u origin main
@@ -30,3 +30,9 @@ git push -u origin main
 git remote add origin https://github.com/st40404/ORB_SLAM2.git
 git branch -M main
 git push -u origin main
+
+
+
+#######    git pull
+git fetch
+git merge origin/master
