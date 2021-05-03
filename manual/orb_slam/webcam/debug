@@ -11,3 +11,6 @@
 		sudo ln -s /usr/bin/python3 /usr/bin/python
 	install defusdxml
 		pip3 install defusedxml
+
+3.[ WARN] [1620042324.698557179]: sh: 1: v4l2-ctl: not found
+	sudo apt-get install v4l-utils
