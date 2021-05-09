@@ -1,0 +1,89 @@
+######  1.install google    ######
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt install wget
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt-get install -f
+
+
+######  2.install ibus-chewing    ######
+sudo apt-get install ibus-chewing
+## log out and log in
+## add Chinese(chewing) in setting->Language
+
+
+######  3.install teamviewer    ######
+wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
+sudo apt install ./teamviewer_amd64.deb  
+
+
+######  4.install vscode    ######
+wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+sudo apt install code
+/// use spotify color theme and add bracket pair colorizer ///
+
+
+######  5.install wifi_A560U driver    ######
+sudo apt-get install git
+sudo apt-get install --reinstall git dkms build-essential linux-headers-$(uname -r)
+git clone https://github.com/tomaspinho/rtl8821ce
+cd rtl8821ce
+chmod +x dkms-install.sh
+chmod +x dkms-remove.sh
+sudo ./dkms-install.sh
+sudo reboot
+
+
+######  6.install nvidia driver 460   ######
+###  check recommand version of driver   ###
+ubuntu-driver devices
+sudo add-apt-repository ppa:graphics-drivers
+sudo apt-get update
+sudo apt upgrade
+sudo apt install nvidia-driver-460
+sudo reboot
+nvidia-smi
+
+
+######  7.install CUDA 10.1   ######
+###   download cuda 10.1 from web as follow   ###
+https://developer.nvidia.com/cuda-10.1-download-archive-base?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=deblocal
+
+sudo dpkg -i cuda-repo-ubuntu1804-10-1-local-10.1.105-418.39_1.0-1_amd64.deb
+sudo apt-key add /var/cuda-repo-10-1-local-10.1.105-418.39/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda
+sudo reboot
+
+###  check whether have nvcc  ###
+cd /usr/local/cuda/bin
+sudo apt install vim
+vim ~/.bashrc
+###  add following two line  ###
+export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+
+
+######  8.install CUDNN 7.6.5   ######
+install cudnn from https://developer.nvidia.com/rdp/cudnn-download
+extract your tgz by $tar -xvf name
+sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
+sudo cp cuda/lib64/lib* /usr/local/cuda/lib64/
+
+cd /usr/local/cuda/lib64/
+sudo chmod +r libcudnn.so.7.6.5
+sudo ln -sf libcudnn.so.7.6.5 libcudnn.so.7
+sudo ln -sf libcudnn.so.7 libcudnn.so
+sudo ldconfig
+sudo reboot
+
+
+######  9.install correspond tensorflow-gpu-1.14   ######
+sudo apt install python3-pip
+pip3 install tensorflow==1.14	
+
+
+
