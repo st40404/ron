@@ -14,7 +14,7 @@ reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ro
     (suggess: upload your default python version to 2.7)
     (calibration board: http://wiki.ros.org/camera_calibration/Tutorials/MonocularCalibration?action=AttachFile&do=view&target=check-108.pdf)
 
-5.add parameter in your launch file of usb_cam, add in "camera" node 
+5.add parameter in your launch file of usb_cam, add in "usb_cam" node 
     <param name="camera_info_url" value="file:///home/ron/ORBSLAM2/src/calibrationdata/ost.yaml" />
 
 6.download orb_slam2    
@@ -258,5 +258,102 @@ reference from: https://blog.csdn.net/KYJL888/article/details/86743129
     }
 
 
+
+
+
+
+
+
+########### install orb_slam2 ################
+source: https://blog.csdn.net/MyArrow/article/details/53045405
+
+1. install c++11
+sudo apt-get install gcc g++
+
+2. installglew
+sudo apt install libglew-dev
+
+3. install cmake
+sudo apt install cmake
+
+4. install boost
+sudo apt-get install libboost-dev libboost-thread-dev libboost-filesystem-dev
+
+5. install python2
+sudo apt install libpython2.7-dev
+
+6. install OpenGL
+sudo apt install libegl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
+
+7. install pangolin
+mkdir -p pangolin/src
+cd ~/pangolin/src
+git clone https://github.com/zzx2GH/Pangolin.gitcd Pangolin
+cd Pangolin
+mkdir build
+cd build
+make
+sudo make install
+
+#### ERROR: src/CMakeFiles/pangolin.dir/all] Error 2
+#### open file CMakeList.txt in Pagolin/src
+#### delete the following code 
+
+find_package(FFMPEG QUIET)
+if(BUILD_PANGOLIN_VIDEO AND FFMPEG_FOUND)
+  set(HAVE_FFMPEG 1)
+  list(APPEND INTERNAL_INC  ${FFMPEG_INCLUDE_DIRS} )
+  list(APPEND LINK_LIBS ${FFMPEG_LIBRARIES} )
+  list(APPEND HEADERS ${INCDIR}/video/drivers/ffmpeg.h)
+  list(APPEND SOURCES video/drivers/ffmpeg.cpp)
+  message(STATUS "ffmpeg Found and Enabled")
+endif()
+
+#### and try again
+
+8. install eigen3.1.0
+sudo apt-get install libeigen3-dev 
+
+9. install blas and lapack(g2o need blas and lapack)
+sudo apt-get install libblas-dev 
+sudo apt-get install liblapack-dev 
+
+10. install DBoW2 and g2o
+mkdir -p orbslam2/src
+cd orbslam2/src
+catkin_make
+cd src
+git clone https://github.com/raulmur/ORB_SLAM2.git ORB_SLAM2
+cd ORB_SLAM2
+chmod +x build.sh
+./build.sh
+
+#### fix CMakeFiles/ORB_SLAM2.dir/src/Viewer.cc.o] Error 1
+source: https://titanwolf.org/Network/Articles/Article?AID=7b222385-061f-4185-9e2f-05df89eef210#gsc.tab=0
+#### the following file need to add #include <unistd.h> 
+
+Examples/Monocular/mono_euroc.cc
+Examples/Monocular/mono_kitti.cc
+Examples/Monocular/mono_tum.cc
+Examples/RGB-D/rgbd_tum.cc
+Examples/Stereo/stereo_euroc.cc
+Examples/Stereo/stereo_kitti.cc
+src/LocalMapping.cc
+src/LoopClosing.cc
+src/System.cc
+src/Tracking.cc
+src/Viewer.cc
+
+11. test monocular
+download fr1/desk2 from http://vision.in.tum.de/data/datasets/rgbd-dataset/download
+
+
+./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUMX.yaml PATH_TO_SEQUENCE_FOLDER
+change
+Examples/Monocular/TUMX.yaml to Examples/Monocular/TUM1.yaml
+PATH_TO_SEQUENCE_FOLDER to ~/Downloads/rgbd_dataset_freiburg1_desk2
+
+such as:
+./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml ~/Downloads/rgbd_dataset_freiburg1_desk2
 
 
