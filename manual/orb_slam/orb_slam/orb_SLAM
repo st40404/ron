@@ -1,4 +1,6 @@
-reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ros-melodic-606e668deffa
+####################################
+########### use_cam ################
+####################################
 
 1.install webcam driver
     sudo apt install ros-melodic-usb-cam
@@ -21,73 +23,162 @@ reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ro
 
 
 
-#### skip #####
-6.download orb_slam2    
-    git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros.git
 
-7.create launch file name as orb_slam2_mono_new.launch
-    <launch>
-    <node name="orb_slam2_mono" pkg="orb_slam2_ros"
-        type="orb_slam2_ros_mono" output="screen">
-    <param name="publish_pointcloud" type="bool" value="true" />
-        <param name="publish_pose" type="bool" value="true" />
-        <param name="localize_only" type="bool" value="false" />
-        <param name="reset_map" type="bool" value="true" />
-    <!-- static parameters -->
-        <param name="load_map" type="bool" value="false" />
-        <param name="map_file" type="string" value="map.bin" />
-        <param name="voc_file" type="string" value="$(find orb_slam2_ros)/orb_slam2/Vocabulary/ORBvoc.txt" />
-    <param name="pointcloud_frame_id" type="string" value="map" />
-        <param name="camera_frame_id" type="string" value="camera_link" />
-        <param name="min_num_kf_in_map" type="int" value="5" />
-    <!-- ORB parameters -->
-        <param name="/ORBextractor/nFeatures" type="int" value="2000" />
-        <param name="/ORBextractor/scaleFactor" type="double" value="1.2" />
-        <param name="/ORBextractor/nLevels" type="int" value="8" />
-        <param name="/ORBextractor/iniThFAST" type="int" value="20" />
-        <param name="/ORBextractor/minThFAST" type="int" value="7" />
-    <!-- Camera parameters -->
-        <!-- Camera frames per second -->
-        <param name="camera_fps" type="int" value="30" />
-        <!-- Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale) -->
-        <param name="camera_rgb_encoding" type="bool" value="true" />
-            <!--If the node should wait for a camera_info topic to take the camera calibration data-->
-        <param name="load_calibration_from_cam" type="bool" value="true" />
-    </node>
-    </launch>
+##############################################
+########### install orb_slam2 ################
+##############################################
+source: https://blog.csdn.net/MyArrow/article/details/53045405
 
-8.create a node in "script" folder as camera.py
-    #!/usr/bin/env python
-    import rospy
-    import cv2
-    from cv_bridge import CvBridge
-    from sensor_msgs.msg import Image
-    bridge = CvBridge()
-    def callback(data):
-        frame = bridge.imgmsg_to_cv2(data, "bgr8")
-        cv2.imshow('Video Feed', frame)
-        cv2.waitKey(1)
-        rospy.loginfo('Image feed received!')
-    def listener():
-        rospy.init_node('vid_rec')
-        #first parameter is the topic you want to subcribe sensor_msgs/Image from
-        rospy.Subscriber('/orb_slam2_mono/debug_image', Image, callback)
-        rospy.spin()
-    if __name__ == '__main__':
-        listener()
+1. install c++11
+sudo apt-get install gcc g++
 
-9.make your node excutable 
-    chmod +x camera.py
+2. installglew
+sudo apt install libglew-dev
 
-10.excute each node and check
-    roslaunch usb_cam usb_cam-test.launch
-    roslaunch orb_slam2_ros orb_slam2_mono_new.launch
-    rosrun orb_slam2_ros camera.py 
-    rosrun rviz rviz
+3. install cmake
+sudo apt install cmake
 
-11.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
+4. install boost
+sudo apt-get install libboost-dev libboost-thread-dev libboost-filesystem-dev
 
-#### skip untill here #####
+5. install python2
+sudo apt install libpython2.7-dev
+
+6. install OpenGL
+sudo apt install libegl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
+
+7. install pangolin
+mkdir -p pangolin/src
+cd ~/pangolin/src
+git clone https://github.com/zzx2GH/Pangolin.git
+cd Pangolin
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+#### ERROR: src/CMakeFiles/pangolin.dir/all] Error 2
+#### open file CMakeList.txt in Pagolin/src
+#### delete the following code 
+
+find_package(FFMPEG QUIET)
+if(BUILD_PANGOLIN_VIDEO AND FFMPEG_FOUND)
+  set(HAVE_FFMPEG 1)
+  list(APPEND INTERNAL_INC  ${FFMPEG_INCLUDE_DIRS} )
+  list(APPEND LINK_LIBS ${FFMPEG_LIBRARIES} )
+  list(APPEND HEADERS ${INCDIR}/video/drivers/ffmpeg.h)
+  list(APPEND SOURCES video/drivers/ffmpeg.cpp)
+  message(STATUS "ffmpeg Found and Enabled")
+endif()
+
+#### and try again
+
+8. install eigen3.1.0
+sudo apt-get install libeigen3-dev 
+
+9. install blas and lapack(g2o need blas and lapack)
+sudo apt-get install libblas-dev 
+sudo apt-get install liblapack-dev 
+
+10. install DBoW2 and g2o
+mkdir -p orbslam2/src
+cd orbslam2/src
+catkin_make
+cd src
+git clone https://github.com/raulmur/ORB_SLAM2.git ORB_SLAM2
+cd ORB_SLAM2
+chmod +x build.sh
+./build.sh
+
+#### fix CMakeFiles/ORB_SLAM2.dir/src/Viewer.cc.o] Error 1
+source: https://titanwolf.org/Network/Articles/Article?AID=7b222385-061f-4185-9e2f-05df89eef210#gsc.tab=0
+#### the following file need to add #include <unistd.h> 
+
+Examples/Monocular/mono_euroc.cc
+Examples/Monocular/mono_kitti.cc
+Examples/Monocular/mono_tum.cc
+Examples/RGB-D/rgbd_tum.cc
+Examples/Stereo/stereo_euroc.cc
+Examples/Stereo/stereo_kitti.cc
+Examples/ROS/ORB_SLAM2/src/AR/ViewerAR.cc
+src/LocalMapping.cc
+src/LoopClosing.cc
+src/System.cc
+src/Tracking.cc
+src/Viewer.cc
+
+11. test monocular
+download fr1/desk2 from http://vision.in.tum.de/data/datasets/rgbd-dataset/download
+
+
+./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUMX.yaml PATH_TO_SEQUENCE_FOLDER
+change
+Examples/Monocular/TUMX.yaml to Examples/Monocular/TUM1.yaml
+PATH_TO_SEQUENCE_FOLDER to ~/Downloads/rgbd_dataset_freiburg1_desk2
+
+such as:
+./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml ~/Downloads/rgbd_dataset_freiburg1_desk2
+
+12.add the path in ~/.bashrc
+gedit ~/.bashrc
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:orbslam2/src/ORB_SLAM2/Examples/ROS
+
+13.build build_ros.sh
+go to orbslam2/src/ORB_SLAM2
+chmod +x build_ros.sh
+./build_ros.sh
+
+####  DEBUG:ERROR while running ./build_ros.sh
+open CMakeList.txt in Examples/ROS/ORB_SLAM2
+
+add the line "-lboost_system" in set(...)
+such as:
+
+set(LIBS
+${OpenCV_LIBS}
+${EIGEN3_LIBS}
+${Pangolin_LIBRARIES}
+${PROJECT_SOURCE_DIR}/../../../Thirdparty/DBoW2/lib/libDBoW2.so
+${PROJECT_SOURCE_DIR}/../../../Thirdparty/g2o/lib/libg2o.so
+${PROJECT_SOURCE_DIR}/../../../lib/libORB_SLAM2.so
+-lboost_system
+)
+
+14.change Subscribe topic name, go to Examples/ROS/ORB_SLAM2/srv/ros_mono.cc
+change :
+ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+
+to:
+ros::Subscriber sub = nodeHandler.subscribe("/usb_cam/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+
+
+15. build again
+go to orbslam2/src/ORB_SLAM2
+./build_ros.sh
+
+16.excute orbslam2
+roslaunch usb_cam usb_cam-test.launch
+rosrun ORB_SLAM2 Mono src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ######   add save map   ######
@@ -268,140 +359,77 @@ reference from: https://blog.csdn.net/KYJL888/article/details/86743129
 
 
 
+reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ros-melodic-606e668deffa
+
+#### skip #####
+6.download orb_slam2    
+    git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros.git
+
+7.create launch file name as orb_slam2_mono_new.launch
+    <launch>
+    <node name="orb_slam2_mono" pkg="orb_slam2_ros"
+        type="orb_slam2_ros_mono" output="screen">
+    <param name="publish_pointcloud" type="bool" value="true" />
+        <param name="publish_pose" type="bool" value="true" />
+        <param name="localize_only" type="bool" value="false" />
+        <param name="reset_map" type="bool" value="true" />
+    <!-- static parameters -->
+        <param name="load_map" type="bool" value="false" />
+        <param name="map_file" type="string" value="map.bin" />
+        <param name="voc_file" type="string" value="$(find orb_slam2_ros)/orb_slam2/Vocabulary/ORBvoc.txt" />
+    <param name="pointcloud_frame_id" type="string" value="map" />
+        <param name="camera_frame_id" type="string" value="camera_link" />
+        <param name="min_num_kf_in_map" type="int" value="5" />
+    <!-- ORB parameters -->
+        <param name="/ORBextractor/nFeatures" type="int" value="2000" />
+        <param name="/ORBextractor/scaleFactor" type="double" value="1.2" />
+        <param name="/ORBextractor/nLevels" type="int" value="8" />
+        <param name="/ORBextractor/iniThFAST" type="int" value="20" />
+        <param name="/ORBextractor/minThFAST" type="int" value="7" />
+    <!-- Camera parameters -->
+        <!-- Camera frames per second -->
+        <param name="camera_fps" type="int" value="30" />
+        <!-- Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale) -->
+        <param name="camera_rgb_encoding" type="bool" value="true" />
+            <!--If the node should wait for a camera_info topic to take the camera calibration data-->
+        <param name="load_calibration_from_cam" type="bool" value="true" />
+    </node>
+    </launch>
+
+8.create a node in "script" folder as camera.py
+    #!/usr/bin/env python
+    import rospy
+    import cv2
+    from cv_bridge import CvBridge
+    from sensor_msgs.msg import Image
+    bridge = CvBridge()
+    def callback(data):
+        frame = bridge.imgmsg_to_cv2(data, "bgr8")
+        cv2.imshow('Video Feed', frame)
+        cv2.waitKey(1)
+        rospy.loginfo('Image feed received!')
+    def listener():
+        rospy.init_node('vid_rec')
+        #first parameter is the topic you want to subcribe sensor_msgs/Image from
+        rospy.Subscriber('/orb_slam2_mono/debug_image', Image, callback)
+        rospy.spin()
+    if __name__ == '__main__':
+        listener()
+
+9.make your node excutable 
+    chmod +x camera.py
+
+10.excute each node and check
+    roslaunch usb_cam usb_cam-test.launch
+    roslaunch orb_slam2_ros orb_slam2_mono_new.launch
+    rosrun orb_slam2_ros camera.py 
+    rosrun rviz rviz
+
+11.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
+
+#### skip untill here #####
 
 
 
 
-########### install orb_slam2 ################
-source: https://blog.csdn.net/MyArrow/article/details/53045405
 
-1. install c++11
-sudo apt-get install gcc g++
-
-2. installglew
-sudo apt install libglew-dev
-
-3. install cmake
-sudo apt install cmake
-
-4. install boost
-sudo apt-get install libboost-dev libboost-thread-dev libboost-filesystem-dev
-
-5. install python2
-sudo apt install libpython2.7-dev
-
-6. install OpenGL
-sudo apt install libegl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
-
-7. install pangolin
-mkdir -p pangolin/src
-cd ~/pangolin/src
-git clone https://github.com/zzx2GH/Pangolin.gitcd Pangolin
-cd Pangolin
-mkdir build
-cd build
-make
-sudo make install
-
-#### ERROR: src/CMakeFiles/pangolin.dir/all] Error 2
-#### open file CMakeList.txt in Pagolin/src
-#### delete the following code 
-
-find_package(FFMPEG QUIET)
-if(BUILD_PANGOLIN_VIDEO AND FFMPEG_FOUND)
-  set(HAVE_FFMPEG 1)
-  list(APPEND INTERNAL_INC  ${FFMPEG_INCLUDE_DIRS} )
-  list(APPEND LINK_LIBS ${FFMPEG_LIBRARIES} )
-  list(APPEND HEADERS ${INCDIR}/video/drivers/ffmpeg.h)
-  list(APPEND SOURCES video/drivers/ffmpeg.cpp)
-  message(STATUS "ffmpeg Found and Enabled")
-endif()
-
-#### and try again
-
-8. install eigen3.1.0
-sudo apt-get install libeigen3-dev 
-
-9. install blas and lapack(g2o need blas and lapack)
-sudo apt-get install libblas-dev 
-sudo apt-get install liblapack-dev 
-
-10. install DBoW2 and g2o
-mkdir -p orbslam2/src
-cd orbslam2/src
-catkin_make
-cd src
-git clone https://github.com/raulmur/ORB_SLAM2.git ORB_SLAM2
-cd ORB_SLAM2
-chmod +x build.sh
-./build.sh
-
-#### fix CMakeFiles/ORB_SLAM2.dir/src/Viewer.cc.o] Error 1
-source: https://titanwolf.org/Network/Articles/Article?AID=7b222385-061f-4185-9e2f-05df89eef210#gsc.tab=0
-#### the following file need to add #include <unistd.h> 
-
-Examples/Monocular/mono_euroc.cc
-Examples/Monocular/mono_kitti.cc
-Examples/Monocular/mono_tum.cc
-Examples/RGB-D/rgbd_tum.cc
-Examples/Stereo/stereo_euroc.cc
-Examples/Stereo/stereo_kitti.cc
-Examples/ROS/ORB_SLAM2/src/AR/ViewerAR.cc
-src/LocalMapping.cc
-src/LoopClosing.cc
-src/System.cc
-src/Tracking.cc
-src/Viewer.cc
-
-11. test monocular
-download fr1/desk2 from http://vision.in.tum.de/data/datasets/rgbd-dataset/download
-
-
-./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUMX.yaml PATH_TO_SEQUENCE_FOLDER
-change
-Examples/Monocular/TUMX.yaml to Examples/Monocular/TUM1.yaml
-PATH_TO_SEQUENCE_FOLDER to ~/Downloads/rgbd_dataset_freiburg1_desk2
-
-such as:
-./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml ~/Downloads/rgbd_dataset_freiburg1_desk2
-
-12.add the path in ~/.bashrc
-gedit ~/.bashrc
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:orbslam2/src/ORB_SLAM2/Examples/ROS
-
-13.build build_ros.sh
-go to orbslam2/src/ORB_SLAM2
-chmod +x build_ros.sh
-./build_ros.sh
-
-####  DEBUG:ERROR while running ./build_ros.sh
-open CMakeList.txt in Examples/ROS/ORB_SLAM2
-
-add the line "-lboost_system" in set(...)
-such as:
-
-set(LIBS
-${OpenCV_LIBS}
-${EIGEN3_LIBS}
-${Pangolin_LIBRARIES}
-${PROJECT_SOURCE_DIR}/../../../Thirdparty/DBoW2/lib/libDBoW2.so
-${PROJECT_SOURCE_DIR}/../../../Thirdparty/g2o/lib/libg2o.so
-${PROJECT_SOURCE_DIR}/../../../lib/libORB_SLAM2.so
--lboost_system
-)
-
-14.change Subscribe topic name, go to Examples/ROS/ORB_SLAM2/srv/rosmono.cc
-change :
-ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
-
-to:
-ros::Subscriber sub = nodeHandler.subscribe("/usb_cam/image_raw", 1, &ImageGrabber::GrabImage,&igb);
-
-
-15. build again
-go to orbslam2/src/ORB_SLAM2
-./build_ros.sh
-
-16.excute orbslam2
-roslaunch usb_cam usb_cam-test.launch
-rosrun ORB_SLAM2 Mono src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml 
