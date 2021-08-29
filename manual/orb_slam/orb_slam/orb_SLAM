@@ -19,6 +19,9 @@ reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ro
 5.add parameter in your launch file of usb_cam, add in "usb_cam" node 
     <param name="camera_info_url" value="file:///home/ron/ORBSLAM2/src/calibrationdata/ost.yaml" />
 
+
+
+#### skip #####
 6.download orb_slam2    
     git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros.git
 
@@ -83,6 +86,9 @@ reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ro
     rosrun rviz rviz
 
 11.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
+
+#### skip untill here #####
+
 
 ######   add save map   ######
 reference from: https://blog.csdn.net/KYJL888/article/details/86743129
