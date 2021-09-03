@@ -1,12 +1,12 @@
+####################################
+########### use_cam ################
+####################################
 
 1.install webcam driver
-    git clone https://github.com/ros-drivers/usb_cam.git
+    sudo apt install ros-melodic-usb-cam
 
 2.test your cam
     roslaunch usb_cam usb_cam-test.launch
-
-3.update rosdep
-    rosdep update
 
 3.install calibration dependencies
     rosdep install camera_calibration
@@ -18,9 +18,350 @@
     there also have this problem : [head_camera] does not match name narrow_stereo
     in ost.yaml file , change narrow_stereo to head_camera
 
-5.add parameter in your launch file of usb_cam, add in "camera" node 
+5.add parameter in your launch file of usb_cam, add in "usb_cam" node 
     <param name="camera_info_url" value="file:///home/ron/ORBSLAM2/src/calibrationdata/ost.yaml" />
 
+
+
+
+##############################################
+########### install orb_slam2 ################
+##############################################
+source: https://blog.csdn.net/MyArrow/article/details/53045405
+
+1. install c++11
+sudo apt-get install gcc g++
+
+2. installglew
+sudo apt install libglew-dev
+
+3. install cmake
+sudo apt install cmake
+
+4. install boost
+sudo apt-get install libboost-dev libboost-thread-dev libboost-filesystem-dev
+
+5. install python2
+sudo apt install libpython2.7-dev
+
+6. install OpenGL
+sudo apt install libegl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
+
+7. install pangolin
+mkdir -p pangolin/src
+cd ~/pangolin/src
+git clone https://github.com/zzx2GH/Pangolin.git
+cd Pangolin
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+#### ERROR: src/CMakeFiles/pangolin.dir/all] Error 2
+#### open file CMakeList.txt in Pagolin/src
+#### delete the following code 
+
+find_package(FFMPEG QUIET)
+if(BUILD_PANGOLIN_VIDEO AND FFMPEG_FOUND)
+  set(HAVE_FFMPEG 1)
+  list(APPEND INTERNAL_INC  ${FFMPEG_INCLUDE_DIRS} )
+  list(APPEND LINK_LIBS ${FFMPEG_LIBRARIES} )
+  list(APPEND HEADERS ${INCDIR}/video/drivers/ffmpeg.h)
+  list(APPEND SOURCES video/drivers/ffmpeg.cpp)
+  message(STATUS "ffmpeg Found and Enabled")
+endif()
+
+#### and try again
+
+8. install eigen3.1.0
+sudo apt-get install libeigen3-dev 
+
+9. install blas and lapack(g2o need blas and lapack)
+sudo apt-get install libblas-dev 
+sudo apt-get install liblapack-dev 
+
+10. install DBoW2 and g2o
+mkdir -p orbslam2/src
+cd orbslam2/src
+catkin_make
+cd src
+git clone https://github.com/raulmur/ORB_SLAM2.git ORB_SLAM2
+cd ORB_SLAM2
+chmod +x build.sh
+./build.sh
+
+#### fix CMakeFiles/ORB_SLAM2.dir/src/Viewer.cc.o] Error 1
+source: https://titanwolf.org/Network/Articles/Article?AID=7b222385-061f-4185-9e2f-05df89eef210#gsc.tab=0
+#### the following file need to add #include <unistd.h> 
+
+Examples/Monocular/mono_euroc.cc
+Examples/Monocular/mono_kitti.cc
+Examples/Monocular/mono_tum.cc
+Examples/RGB-D/rgbd_tum.cc
+Examples/Stereo/stereo_euroc.cc
+Examples/Stereo/stereo_kitti.cc
+Examples/ROS/ORB_SLAM2/src/AR/ViewerAR.cc
+src/LocalMapping.cc
+src/LoopClosing.cc
+src/System.cc
+src/Tracking.cc
+src/Viewer.cc
+
+11. test monocular
+download fr1/desk2 from http://vision.in.tum.de/data/datasets/rgbd-dataset/download
+
+
+./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUMX.yaml PATH_TO_SEQUENCE_FOLDER
+change
+Examples/Monocular/TUMX.yaml to Examples/Monocular/TUM1.yaml
+PATH_TO_SEQUENCE_FOLDER to ~/Downloads/rgbd_dataset_freiburg1_desk2
+
+such as:
+./Examples/Monocular/mono_tum Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml ~/Downloads/rgbd_dataset_freiburg1_desk2
+
+12.add the path in ~/.bashrc
+gedit ~/.bashrc
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:orbslam2/src/ORB_SLAM2/Examples/ROS
+
+13.build build_ros.sh
+go to orbslam2/src/ORB_SLAM2
+chmod +x build_ros.sh
+./build_ros.sh
+
+####  DEBUG:ERROR while running ./build_ros.sh
+open CMakeList.txt in Examples/ROS/ORB_SLAM2
+
+add the line "-lboost_system" in set(...)
+such as:
+
+set(LIBS
+${OpenCV_LIBS}
+${EIGEN3_LIBS}
+${Pangolin_LIBRARIES}
+${PROJECT_SOURCE_DIR}/../../../Thirdparty/DBoW2/lib/libDBoW2.so
+${PROJECT_SOURCE_DIR}/../../../Thirdparty/g2o/lib/libg2o.so
+${PROJECT_SOURCE_DIR}/../../../lib/libORB_SLAM2.so
+-lboost_system
+)
+
+14.change Subscribe topic name, go to Examples/ROS/ORB_SLAM2/srv/ros_mono.cc
+change :
+ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+
+to:
+ros::Subscriber sub = nodeHandler.subscribe("/usb_cam/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+
+
+15. build again
+go to orbslam2/src/ORB_SLAM2
+./build_ros.sh
+
+16.excute orbslam2
+roslaunch usb_cam usb_cam-test.launch
+rosrun ORB_SLAM2 Mono src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######   add save map   ######
+reference from: https://blog.csdn.net/KYJL888/article/details/86743129
+
+1.clone the ORB_SLAM2_map from git in your ws/src
+    git clone https://github.com/xiaopengsu/ORB_SLAM2_map
+
+2.add the saveamp function
+    open file system.h from xxx_ws/src/orb_slam_2_ros/orb_slam2/inlcude/System.h
+    add follow in public 
+    #####
+    void SaveMap(const string &filename); 
+    #####
+
+    open file system.cc from xxx_ws/src/orb_slam_2_ros/orb_slam2/src/System.cc
+    add follow function in bottom 
+    #####
+    void System::SaveMap(const string &filename)  
+    {  
+       mpMap->Save(filename);   
+    }
+    #####
+
+3.add the savemap button "y"
+    open file ros_mono.cpp from xxx_ws/src/ORB_SLAM2_map/ORB_SLAM2_map/Examples/ROS/ORB_SLAM2/src/ros_mono.cpp
+    add follow command upper ros::spin();    
+    #####
+    char IsSaveMap;  
+    cout << "Do you want to save the map?(Y/N)" << endl;  
+    cin >> IsSaveMap;  
+    if(IsSaveMap == 'Y' || IsSaveMap == 'y')  
+        SLAM.SaveMap("MapPointandKeyFrame.bin");
+    #####
+
+4.declare save,savemappoint and savekeyframe function
+    open file map.h from xxx_ws/src/orb_slam_2_ros/orb_slam2/inlcude/Map.h
+    add copmmand as follow 
+
+    #####
+    public:
+    void Save( const string &filename );
+    protected:
+    void SaveMapPoint( ofstream &f, MapPoint* mp );
+    void SaveKeyFrame( ofstream &f, KeyFrame* kf );
+    #####
+
+    open file system.cc from xxx_ws/src/orb_slam_2_ros/orb_slam2/src/Map.cc
+    add follow function in bottom 
+
+    #####
+    void Map::Save ( const string& filename )
+    {
+     cerr<<"Map Saving to "<<filename <<endl;
+     ofstream f;
+     f.open(filename.c_str(), ios_base::out|ios::binary);
+     cerr << "The number of MapPoints is :"<<mspMapPoints.size()<<endl;
+ 
+     //地图点的数目
+     unsigned long int nMapPoints = mspMapPoints.size();
+     f.write((char*)&nMapPoints, sizeof(nMapPoints) );
+     //依次保存MapPoints
+     for ( auto mp: mspMapPoints )
+         SaveMapPoint( f, mp );
+     //获取每一个MapPoints的索引值，即从0开始计数，初始化了mmpnMapPointsIdx  
+     GetMapPointsIdx(); 
+     cerr <<"The number of KeyFrames:"<<mspKeyFrames.size()<<endl;
+     //关键帧的数目
+     unsigned long int nKeyFrames = mspKeyFrames.size();
+     f.write((char*)&nKeyFrames, sizeof(nKeyFrames));
+ 
+     //依次保存关键帧KeyFrames
+     for ( auto kf: mspKeyFrames )
+         SaveKeyFrame( f, kf );
+ 
+     for (auto kf:mspKeyFrames )
+     {
+         //获得当前关键帧的父节点，并保存父节点的ID
+         KeyFrame* parent = kf->GetParent();
+         unsigned long int parent_id = ULONG_MAX;
+         if ( parent )
+             parent_id = parent->mnId;
+         f.write((char*)&parent_id, sizeof(parent_id));
+         //获得当前关键帧的关联关键帧的大小，并依次保存每一个关联关键帧的ID和weight；//共视图生长树，吗
+         unsigned long int nb_con = kf->GetConnectedKeyFrames().size();
+         f.write((char*)&nb_con, sizeof(nb_con));
+         for ( auto ckf: kf->GetConnectedKeyFrames())
+         {
+             int weight = kf->GetWeight(ckf);
+             f.write((char*)&ckf->mnId, sizeof(ckf->mnId));
+             f.write((char*)&weight, sizeof(weight));
+         }
+     }
+ 
+     f.close();
+     cerr<<"Map Saving Finished!"<<endl;
+    }
+
+
+    void Map::SaveMapPoint( ofstream& f, MapPoint* mp)
+    {   
+     //保存当前MapPoint的ID和世界坐标值
+     f.write((char*)&mp->mnId, sizeof(mp->mnId));
+     cv::Mat mpWorldPos = mp->GetWorldPos();
+     f.write((char*)& mpWorldPos.at<float>(0),sizeof(float));
+     f.write((char*)& mpWorldPos.at<float>(1),sizeof(float));
+     f.write((char*)& mpWorldPos.at<float>(2),sizeof(float));
+    }
+
+    void Map::SaveKeyFrame( ofstream &f, KeyFrame* kf )
+    {
+    //保存当前关键帧的ID和时间戳
+     f.write((char*)&kf->mnId, sizeof(kf->mnId));
+     f.write((char*)&kf->mTimeStamp, sizeof(kf->mTimeStamp));
+     //保存当前关键帧的位姿矩阵
+     cv::Mat Tcw = kf->GetPose();
+     //通过四元数保存旋转矩阵
+     std::vector<float> Quat = Converter::toQuaternion(Tcw);
+     for ( int i = 0; i < 4; i ++ )
+         f.write((char*)&Quat[i],sizeof(float));
+     //保存平移矩阵
+     for ( int i = 0; i < 3; i ++ )
+         f.write((char*)&Tcw.at<float>(i,3),sizeof(float));
+ 
+ 
+     //直接保存旋转矩阵
+    //  for ( int i = 0; i < Tcw.rows; i ++ )
+    //  {
+    //      for ( int j = 0; j < Tcw.cols; j ++ )
+    //      {
+    //              f.write((char*)&Tcw.at<float>(i,j), sizeof(float));
+    //              //cerr<<"Tcw.at<float>("<<i<<","<<j<<"):"<<Tcw.at<float>(i,j)<<endl;
+    //      }
+    //    }
+    
+     //保存当前关键帧包含的ORB特征数目
+     //cerr<<"kf->N:"<<kf->N<<endl;
+     f.write((char*)&kf->N, sizeof(kf->N));
+     //保存每一个ORB特征点
+     for( int i = 0; i < kf->N; i ++ )
+     {
+         cv::KeyPoint kp = kf->mvKeys[i];
+         f.write((char*)&kp.pt.x, sizeof(kp.pt.x));
+         f.write((char*)&kp.pt.y, sizeof(kp.pt.y));
+         f.write((char*)&kp.size, sizeof(kp.size));
+         f.write((char*)&kp.angle,sizeof(kp.angle));
+         f.write((char*)&kp.response, sizeof(kp.response));
+         f.write((char*)&kp.octave, sizeof(kp.octave));
+ 
+         //保存当前特征点的描述符
+         for (int j = 0; j < kf->mDescriptors.cols; j ++ )
+                 f.write((char*)&kf->mDescriptors.at<unsigned char>(i,j), sizeof(char));
+ 
+         //保存当前ORB特征对应的MapPoints的索引值
+         unsigned long int mnIdx;
+         MapPoint* mp = kf->GetMapPoint(i);
+         if (mp == NULL  )
+                 mnIdx = ULONG_MAX;
+         else
+                 mnIdx = mmpnMapPointsIdx[mp];
+ 
+         f.write((char*)&mnIdx, sizeof(mnIdx));
+     }
+    }
+
+    void Map::GetMapPointsIdx()
+    {
+          unique_lock<mutex> lock(mMutexMap);
+          unsigned long int i = 0;
+          for ( auto mp: mspMapPoints )
+          {
+                  mmpnMapPointsIdx[mp] = i;
+                  i += 1;
+          }
+
+    }
+
+
+
+
+reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ros-melodic-606e668deffa
+
+#### skip #####
 6.download orb_slam2    
     git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros.git
 
@@ -78,15 +419,17 @@
 9.make your node excutable 
     chmod +x camera.py
 
-10.change to pkg name from camera to usb_cam in ros/src/Mononode.cc file
-    change /camera/camera_info   to   /usb_cam/camera_info
-    change /camera/image_raw     to   /usb_cam/image_raw
-
-11.excute each node and check
+10.excute each node and check
     roslaunch usb_cam usb_cam-test.launch
     roslaunch orb_slam2_ros orb_slam2_mono_new.launch
     rosrun orb_slam2_ros camera.py 
     rosrun rviz rviz
 
-12.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
+11.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
+
+#### skip untill here #####
+
+
+
+
 
