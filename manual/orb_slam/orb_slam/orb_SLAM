@@ -162,8 +162,12 @@ roslaunch usb_cam usb_cam-test.launch
 rosrun ORB_SLAM2 Mono src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml 
 
 17. make a lunch 
-go to ws/src
-mkdir all_process.launch
+go to _ws/src
+catkin_create_pkg all_process std_msgs rospy roscpp
+cd all_process
+mkdir launch
+cd launch
+vim all_process.launch
 add following code:
 
 <launch>
