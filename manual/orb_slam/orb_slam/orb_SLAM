@@ -161,6 +161,34 @@ go to orbslam2/src/ORB_SLAM2
 roslaunch usb_cam usb_cam-test.launch
 rosrun ORB_SLAM2 Mono src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml 
 
+17. make a lunch 
+go to ws/src
+mkdir all_process.launch
+add following code:
+
+<launch>
+  <!-- open launch: usb_cam driver -->
+  <include file="$(find usb_cam)/launch/usb_cam-test.launch">  </include>
+  <arg
+    name="path_to_vocabulary"
+    default="$(find ORB_SLAM2)/data/ORBvoc.txt"
+  />
+  <arg
+    name="path_to_settings"
+    default="$(find ORB_SLAM2)/data/KITTI00-02.yaml"
+  />
+  <!-- open node: orb_slam -->
+  <group ns="mono">
+    <node pkg="ORB_SLAM2"
+          name="Mono" 
+          type="Mono"
+          args= "$(arg path_to_vocabulary) $(arg path_to_settings)" />
+  </group>
+</launch>
+
+put  src/ORB_SLAM2/Vocabulary/ORBvoc.txt
+and  src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml
+to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
 
 
 
