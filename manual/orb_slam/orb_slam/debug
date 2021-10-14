@@ -57,3 +57,9 @@
     and change the camera/image_raw as usb_cam/image_raw
     and change the camera/image_info as usb_cam/image_info
 
+6. when on-sjip calibration of realsense, there is an error as follow:
+   ## invalid value in rs2_run_on_chip calibration
+
+   reason: because calibration table was broken
+   
+    

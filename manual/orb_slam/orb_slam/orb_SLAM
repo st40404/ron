@@ -198,14 +198,68 @@ to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
 
 
 
+##############################################
+######### orb_slam2（realsense） #############
+##############################################
+
+1.install SDK2 (following manual step)
+
+2.go to your workspace/src 
+
+3.clone the realsense pkg
+    git clone https://github.com/intel-ros/realsense.git
+
+4.realsense calibration:
+    realsense-viewer
+    click: Stereo Module->Emitter Enabled Laser
+    click: More->On-Chip Calibration
 
 
+5.add following code in realsense/realsense2_camera/launch/rs_rgbd.launch in line 118
+
+  <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/depth_registered/image_raw" />
+  <remap from="/camera/color/image_raw"                  to="/camera/rgb/image_raw" />
+
+6.try to run realsense and orb_slam:
+
+roslaunch realsense2_camera rs_rgbd.launch 
+rosrun ORB_SLAM2 RGBD src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/RGB-D/TUM1.yaml
+
+7.create a launch name orbslam2_rgbd.launch in ws/all_process/launch
+and paste the following code
+
+<launch>
+
+  <!-- open launch: realsense driver -->
+  <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">  </include>
 
 
+  <arg
+    name="path_to_vocabulary"
+    default="$(find ORB_SLAM2)/data/ORBvoc.txt"
+  />
 
+  <arg
+    name="path_to_settings"
+    default="$(find ORB_SLAM2)/data/TUM3.yaml"
+  />
 
+  <!-- open node: orb_slam -->
+  <node pkg="ORB_SLAM2"
+        name="RGBD" 
+        type="RGBD"
+        args= "$(arg path_to_vocabulary) $(arg path_to_settings)" />
 
+</launch>
 
+8.put  src/ORB_SLAM2/Vocabulary/ORBvoc.txt
+and  src/ORB_SLAM2/Examples/RGB-D/TUM3.yaml
+to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+
+9.execute orbslam2_rgbd.launch
+
+roslaunch all_process orbslam2_rgbd.launch 
+ 
 
 
 
