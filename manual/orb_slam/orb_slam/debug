@@ -62,4 +62,11 @@
 
    reason: because calibration table was broken
    
+7.Resource not found: rgbd_launch 
+    ROS path [0]=/opt/ros/melodic/share/ros 
+    ROS path [1]=/home/iclab/orb_slam2_ws/src 
+    ROS path [2]=/opt/ros/melodic/share 
+    The traceback for the exception was written to the log file
+
+sudo apt-get install ros-melodic-rgbd-launch 
     
