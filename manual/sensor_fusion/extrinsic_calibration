@@ -1,0 +1,7 @@
+source: https://github.com/MegviiRobot/CamLaserCalibraTool?fbclid=IwAR1Z0EfF-nob7_EnLt4s18m7HLzTtkSD8GYvJvpjRyhNKk77QFO9csEjb-g
+
+mkdir -p LaserCameraCal_ws/src
+cd LaserCameraCal_ws/src
+git clone https://github.com/MegviiRobot/CamLaserCalibraTool
+cd ..
+catkin_make -DCMAKE_BUILD_TYPE=Release

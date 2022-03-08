@@ -1,0 +1,69 @@
+1. at CamLaserCalibraTool/CMakeLists.txt:37 (find_package):
+  By not providing "FindCeres.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "Ceres", but
+  CMake did not find one.
+
+   P: need to install ceres
+   S: # install dependencies
+        # CMake
+        sudo apt-get install cmake
+        # google-glog + gflags
+        sudo apt-get install libgoogle-glog-dev libgflags-dev
+        # BLAS & LAPACK
+        sudo apt-get install libatlas-base-dev
+        # Eigen3
+        sudo apt-get install libeigen3-dev
+        # SuiteSparse and CXSparse (optional)
+        sudo apt-get install libsuitesparse-dev
+        
+        # add the following PPA:
+        sudo add-apt-repository ppa:bzindovic/suitesparse-bugfix-1319687
+
+
+
+        # install ceres
+        git clone https://ceres-solver.googlesource.com/ceres-solver
+        cd ceres-solver
+        mkdir ceres-bin
+        cd ceres-bin
+        cmake ..
+        make
+        sudo make install
+
+
+2. E: The repository 'http://ppa.launchpad.net/bzindovic/suitesparse-bugfix-1319687/ubuntu bionic Release' does not have a Release file.
+   R: ppa version is too old 
+   S: # clean the previous ppa
+      sudo add-apt-repository -r ppa:bzindovic/suitesparse-bugfix-1319687
+      sudo apt update
+      # go to https://github.com/jluttine/suitesparse 
+      git clone https://github.com/jluttine/suitesparse.git
+      cd suitesparse
+      make
+      make library
+
+
+3. E: Package 'libgoogle-glog-dev' has no installation candidate
+
+    S1:   sudo vim /etc/apt/sources.list
+       
+          # add following code
+          deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse 
+          deb http://archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse 
+          deb http://archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse 
+          deb http://archive.ubuntu.com/ubuntu/ trusty-proposed main restricted universe multiverse 
+          deb http://archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
+   
+    S2:   sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get install libgoogle-glog-dev
+
+
+
+collect2: error: ld returned 1 exit status
+examples/CMakeFiles/bicubic_interpolation.dir/build.make:119: recipe for target 'bin/bicubic_interpolation' failed
+make[2]: *** [bin/bicubic_interpolation] Error 1
+CMakeFiles/Makefile2:321: recipe for target 'examples/CMakeFiles/bicubic_interpolation.dir/all' failed
+make[1]: *** [examples/CMakeFiles/bicubic_interpolation.dir/all] Error 2
+Makefile:159: recipe for target 'all' failed
+make: *** [all] Error 2
+
+
