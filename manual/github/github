@@ -39,6 +39,10 @@ git merge origin/master
 
 
 ######     first clone then push
+#clone your pkg
+#cd to your pkg
+
 git config --global user.email "lung40404@gmail.com"
 git config --global user.name "Your Name"
+
 
