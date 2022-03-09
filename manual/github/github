@@ -37,7 +37,8 @@ git push -u origin main
 git fetch
 git merge origin/master
 
-######     add new branch
-git config --global user.email "you@example.com"
+
+######     first clone then push
+git config --global user.email "lung40404@gmail.com"
 git config --global user.name "Your Name"
 
