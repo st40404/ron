@@ -38,4 +38,6 @@ git fetch
 git merge origin/master
 
 ######     add new branch
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 
