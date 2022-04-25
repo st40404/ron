@@ -3,7 +3,7 @@
   asked CMake to find a package configuration file provided by "Ceres", but
   CMake did not find one.
 
-   P: need to install ceres
+   P: need to install ceres 
    S: # install dependencies
         # CMake
         sudo apt-get install cmake
@@ -28,6 +28,7 @@
         cd ceres-bin
         cmake ..
         make
+        make test
         sudo make install
 
 
@@ -57,11 +58,64 @@
     S2:   sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get install libgoogle-glog-dev
 
 
+4. E: collect2: error: ld returned 1 exit status
+      examples/CMakeFiles/bicubic_interpolation.dir/build.make:119: recipe for target 'bin/bicubic_interpolation' failed
+      make[2]: *** [bin/bicubic_interpolation] Error 1
+      CMakeFiles/Makefile2:321: recipe for target 'examples/CMakeFiles/bicubic_interpolation.dir/all' failed
+      make[1]: *** [examples/CMakeFiles/bicubic_interpolation.dir/all] Error 2
+      Makefile:159: recipe for target 'all' failed
+      make: *** [all] Error 2
+   S: reunstall ubuntu
 
-collect2: error: ld returned 1 exit status
-examples/CMakeFiles/bicubic_interpolation.dir/build.make:119: recipe for target 'bin/bicubic_interpolation' failed
-make[2]: *** [bin/bicubic_interpolation] Error 1
-CMakeFiles/Makefile2:321: recipe for target 'examples/CMakeFiles/bicubic_interpolation.dir/all' failed
-make[1]: *** [examples/CMakeFiles/bicubic_interpolation.dir/all] Error 2
-Makefile:159: recipe for target 'all' failed
-make: *** [all] Error 2
+5. when catkin_make LaserCameraCal_ws
+   E: CMake Error at /usr/local/lib/cmake/Ceres/FindSuiteSparse.cmake:115 (if):
+      if given arguments:
+      "CHOLMOD" "IN_LIST" "SuiteSparse_FIND_COMPONENTS"
+      Unknown arguments specified
+
+   S:      cd /usr/local/lib/cmake/Ceres
+           sudo vim FindSuiteSparse.cmake
+
+     ## add following code in line 115
+
+      if(POLICY CMP0057)
+            cmake_policy(SET CMP0057 NEW)
+      endif()
+
+      ## cmake again
+
+6. when catkin build kalibr_workspace 
+    P : catkin:command not found
+    S : sudo apt-get install ros-melodic-catkin python-catkin-tools 
+
+
+7. when catkin build kalibr_workspace have error in process
+      S :
+      ## install dependency package
+      sudo apt-get install python-setuptools python-rosinstall ipython libeigen3-dev libboost-all-dev doxygen libopencv-dev ros-melodic-vision-opencv ros-melodic-image-transport-plugins ros-melodic-cmake-modules software-properties-common software-properties-common libpoco-dev python-matplotlib python-scipy python-git python-pip ipython libtbb-dev libblas-dev liblapack-dev python-catkin-tools libv4l-dev
+      sudo apt-get update
+      sudo apt-get upgrade
+      ## rebuild a new workspace 
+      mkdir -p ~/kalibr_workspace/src
+      cd ~/kalibr_workspace
+      source /opt/ros/melodic/setup.bash
+      catkin init
+      catkin config --extend /opt/ros/melodic
+      catkin config --merge-devel
+      cd ~/kalibr_workspace/src
+      git clone https://github.com/ethz-asl/Kalibr.git
+      cd ~/kalibr_workspace
+      catkin build -DCMAKE_BUILD_TYPE=Release -j4
+
+8. when use kalibr_create_target_pdf to make Aprilgrid
+      P : No module named pyx
+      S : install pyx
+      pip install pyx
+      or 
+      pip install PyX==0.12
+
+9. when use kalibr_create_target_pdf make an apriltag
+      P : IOError: [Errno 32] Broken pipe
+      S : install python-pyx instead of pyx
+      sudo apt install python-pyx
+      

@@ -48,6 +48,9 @@
       echo $PYTHONPATH
 
 4.How to change default python version?
+    ## set priorty first
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+    sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 2
     sudo update-alternatives --list python
     sudo update-alternatives --config python
     and choose your priority

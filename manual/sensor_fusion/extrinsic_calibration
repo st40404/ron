@@ -3,5 +3,62 @@ source: https://github.com/MegviiRobot/CamLaserCalibraTool?fbclid=IwAR1Z0EfF-nob
 mkdir -p LaserCameraCal_ws/src
 cd LaserCameraCal_ws/src
 git clone https://github.com/MegviiRobot/CamLaserCalibraTool
-cd ..
-catkin_make -DCMAKE_BUILD_TYPE=Release
+
+## install cere
+## following the manual(debug) : need to install ceres 
+
+## compile and check system in sim mode
+    cd ..
+    catkin_make -DCMAKE_BUILD_TYPE=Release
+
+    . devel/setup.bash 
+    roscore
+    rosrun lasercamcal_ros simulation_lasercamcal_node
+
+## get the kalibr from realsense(install kalibr for the calibration bag & log)
+
+    mkdir -p ~/kalibr_workspace/src
+    cd ~/kalibr_workspace/src
+    git clone https://github.com/ethz-asl/Kalibr.git
+
+    cd ~/kalibr_workspace
+    catkin build -DCMAKE_BUILD_TYPE=Release -j4
+
+    ## goto your kalibr workspace to make a apriltag
+    . devel/setup.bash
+
+    kalibr_create_target_pdf --type apriltag --nx 6 --ny 6 --tsize 0.088 --tspace 0.3
+
+    ## make a bag and yaml
+        ## go to LaserCameraCal_ws
+        roslaunch realsense2_camera rs_camera.launch
+        rosrun topic_tools throttle messages /camera/color/image_raw 4.0 /color
+
+        ## open rosbag to save this topic
+        rosbag record -O camd435i /color
+
+        ## put your apriltag in front of your camera and move it 
+        ## after trying lots of position and gesture, Ctri+c to close this bag and save
+
+        ## make a file in LaserCameraCal_ws/src
+        cd ~/LaserCameraCal_ws/src
+        mkdir bagfiles
+
+        ## put camd435i.bag, aprilgrid.yaml in bagfiles, and make a log file
+
+        ## aprilgrid.yaml (make by your self)
+            target_type: 'aprilgrid' #gridtype
+            tagCols: 6               #number of apriltags
+            tagRows: 6               #number of apriltags
+            tagSize: 0.088           #size of apriltag, edge to edge [m]
+            tagSpacing: 0.3          #ratio of space between tags to tagSize
+                                     #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
+        
+        ## make a log file in bagfiles
+            mkdir log
+
+
+
+
+## check camera info
+rostopic echo /camera/color/camera_info 

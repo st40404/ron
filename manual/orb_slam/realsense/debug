@@ -3,8 +3,10 @@
     ddynamic_reconfigureConfig.cmake
     ddynamic_reconfigure-config.cmake
 
-    install ddynamic_reconfigure
+    S:install ddynamic_reconfigure
         https://github.com/pal-robotics/ddynamic_reconfigure.git
+
+    git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
         
 
 
@@ -27,3 +29,5 @@ CMake Error at /opt/ros/kinetic/share/catkin/cmake/catkinConfig.cmake:83 (find_p
     ddynamic_reconfigure-config.cmake
 
 sudo apt-get install ros-melodic-ddynamic-reconfigure
+
+
