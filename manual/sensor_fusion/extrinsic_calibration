@@ -46,17 +46,62 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
 
         ## put camd435i.bag, aprilgrid.yaml in bagfiles, and make a log file
 
+kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
+
+
+
         ## aprilgrid.yaml (make by your self)
+        ## A0 paper
             target_type: 'aprilgrid' #gridtype
             tagCols: 6               #number of apriltags
             tagRows: 6               #number of apriltags
             tagSize: 0.088           #size of apriltag, edge to edge [m]
             tagSpacing: 0.3          #ratio of space between tags to tagSize
                                      #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
-        
+        ## A4 paper
+            target_type: 'aprilgrid' #gridtype
+            tagCols: 6               #number of apriltags
+            tagRows: 6               #number of apriltags
+            tagSize: 0.025           #size of apriltag, edge to edge [m]
+            tagSpacing: 0.32         #ratio of space between tags to tagSize
+                                     #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
+
         ## make a log file in bagfiles
             mkdir log
 
+## change calibra_config.yaml 
+    ## go to ~/LaserCameraCal_ws/src/CamLaserCalibraTool/config
+        vim calibra_config.yaml
+    ## change the savePath to your log
+        savePath: "/home/st40404/LaserCameraCal_ws/src/bagfiles/log/"
+    ## change the savePath to your bag
+        bag_path: "/home/st40404/LaserCameraCal_ws/src/bagfiles/camd435i.bag"
+    ## set your tag info
+        tag_type: 2       # 1: kalibr_tag, 2: apriltag
+        tag_size: 0.025   # tag size, unit meter
+        tag_spacing: 0.32 # tag spacing, only used in kalibr_tag. For details, please see kalibr tag description. 
+        black_border: 1   # kalibr_tag black_boarder = 2, apriltag black_boarder = 1
+    ## set camera calibration 
+        ## if you use realsense 435i
+            model_type: PINHOLE
+            camera_name: camera
+        ## to get image_width and image_heigh from camera_info
+        roslaunch realsense2_camera rs_camera.launch
+        rostopic echo /camera/color/camera_info
+
+        image_width: 1280
+        image_height: 720
+    
+    ## set your projection parameters
+        ## get fx, fy, cx, cy from camera_info
+        roslaunch realsense2_camera rs_camera.launch
+        rostopic echo /camera/color/camera_info
+
+        ## K:[x1, x2, x3, y1, y2, y3, z1, z2, z3]
+        fx: x1
+        fy: y2
+        cx: x3
+        xy: y3
 
 
 

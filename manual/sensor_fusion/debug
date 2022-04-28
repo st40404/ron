@@ -119,3 +119,23 @@
       S : install python-pyx instead of pyx
       sudo apt install python-pyx
       
+10. when using kalibr_calibrate_cameras to calibrate camera
+      P : ImportError: No module named igraph
+      S : install igraph and jgraph
+
+      pip install igraph
+      pip install jgraph
+
+
+11. when install python-igraph
+      P : Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-build-V4LfIk/python-igraph/
+      S : update gcloud
+      pip3 install --upgrade gcloud
+      pip3 install --upgrade setuptools
+
+12. when install python-igraph
+      P : Command "/usr/bin/python -u -c "import setuptools, tokenize;__file__='/tmp/pip-build-qqqg6_66/igraph/setup.py';f=getattr(tokenize, 'open', open)(__file__);code=f.read().replace('\r\n', '\n');f.close();exec(compile(code, __file__, 'exec'))" install --record /tmp/pip-o4x8dl1d-record/install-record.txt --single-version-externally-managed --compile --user --prefix=" failed with error code 1 in /tmp/pip-build-qqqg6_66/igraph/
+      S : update setuptools and CMake(higher than 3.16)
+      sudo python -m pip install --upgrade --force pip 
+      sudo pip install setuptools==33.1.1
+      
