@@ -38,11 +38,11 @@ sudo reboot
 
 ######  6.install nvidia driver 460   ######
 ###  check recommand version of driver   ###
-ubuntu-driver devices
+sudo ubuntu-drivers devices
 sudo add-apt-repository ppa:graphics-drivers
 sudo apt-get update
 sudo apt upgrade
-sudo apt install nvidia-driver-460
+sudo apt install nvidia-driver-470
 sudo reboot
 nvidia-smi
 
@@ -64,26 +64,66 @@ vim ~/.bashrc
 ###  add following two line  ###
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+source ~/.bashrc 
 
-
+###  check cuda version  ### 
+nvidia-smi
+cat /usr/local/cuda/version.txt
+nvcc --version
 
 ######  8.install CUDNN 7.6.5   ######
 install cudnn from https://developer.nvidia.com/rdp/cudnn-download
-extract your tgz by $tar -xvf name
-sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
-sudo cp cuda/lib64/lib* /usr/local/cuda/lib64/
+download runtime, developer and code sample
+sudo dpkg -i libcudnn7_7.6.5.32-1+cuda10.1_amd64.deb libcudnn7-dev_7.6.5.32-1+cuda10.1_amd64.deb libcudnn7-doc_7.6.5.32-1+cuda10.1_amd64.deb 
 
-cd /usr/local/cuda/lib64/
-sudo chmod +r libcudnn.so.7.6.5
-sudo ln -sf libcudnn.so.7.6.5 libcudnn.so.7
-sudo ln -sf libcudnn.so.7 libcudnn.so
-sudo ldconfig
-sudo reboot
-
+cp -r /usr/src/cudnn_samples_v7/ $HOME
+cd $HOME/cudnn_samples_v7/mnistCUDNN
+make clean && make
+## test cudnn
+./mnistCUDNN
 
 ######  9.install correspond tensorflow-gpu-1.14   ######
 sudo apt install python3-pip
 pip3 install tensorflow==1.14	
 
+#####  10.install ros-melodic  ######
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 
+sudo apt install curl 
 
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+
+sudo apt update
+
+sudo apt install ros-melodic-desktop-full
+echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+
+sudo apt install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+
+sudo apt install python-rosdep
+sudo rosdep init
+rosdep update
+
+######  11.install lastest CMake  ######
+sudo apt update
+sudo apt install -y software-properties-common lsb-release
+sudo apt clean all
+
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+
+sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+
+sudo apt update
+sudo apt install kitware-archive-keyring
+sudo rm /etc/apt/trusted.gpg.d/kitware.gpg
+
+sudo apt update
+
+## if update have error, use following code ##
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6AF7F09730B3F0A4
+
+sudo apt install cmake
+
+## check cmake version ##
+cmake --version

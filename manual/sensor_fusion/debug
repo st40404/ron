@@ -19,8 +19,6 @@
         # add the following PPA:
         sudo add-apt-repository ppa:bzindovic/suitesparse-bugfix-1319687
 
-
-
         # install ceres
         git clone https://ceres-solver.googlesource.com/ceres-solver
         cd ceres-solver
@@ -37,9 +35,13 @@
    S: # clean the previous ppa
       sudo add-apt-repository -r ppa:bzindovic/suitesparse-bugfix-1319687
       sudo apt update
+
       # go to https://github.com/jluttine/suitesparse 
-      git clone https://github.com/jluttine/suitesparse.git
-      cd suitesparse
+      # git clone https://github.com/jluttine/suitesparse.git
+      # cd suitesparse
+
+      git clone https://github.com/DrTimothyAldenDavis/SuiteSparse.git
+      cd SuiteSparse
       make
       make library
 
@@ -58,7 +60,58 @@
     S2:   sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y && sudo apt-get install libgoogle-glog-dev
 
 
-4. E: collect2: error: ld returned 1 exit status
+4. when make suitesparse pkg
+      P : error:/usr/local/cuda/lib64/libcublas.so: No such file or directory
+      S : give the link from x86_64-linux-gnu/libcublas.so to cuda-10.1/lib64
+      sudo ln -s /usr/lib/x86_64-linux-gnu/libcublas.so /usr/local/cuda-10.1/lib64/libcublas.so
+
+5. when make suitesparse pkg
+      P : error: gmp.h: No such file or directory
+      S : install libgmp3-dev
+      sudo apt install yum
+      sudo apt-get install libgmp3-dev
+
+6. when make suitesparse pkg
+      P : error: mpfr.h: No such file or directory
+      S : install reponsity
+      sudo apt install libgmp-dev libmpfr-dev libmpc-dev
+
+7. when make suitesparse pkg
+      P : error: 'exclusive_scan' is not a member of 'std'
+      S : upgrade g++ and gcc version more than 11
+
+      sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+      sudo apt-get update
+      sudo apt install gcc-11 g++-11
+      sudo updatedb && sudo ldconfig
+      locate gcc | grep -E "/usr/bin/gcc-"
+
+      ## change the authority of gcc and g++
+      sudo update-alternatives --remove-all gcc
+      sudo update-alternatives --remove-all g++
+
+      sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 1
+      sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 10
+
+      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 1
+      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 10
+
+      ## check the version of g++ and gcc
+      gcc --version
+      g++ --version
+
+
+
+
+
+
+7. How to check Eigen version
+      cat /usr/include/eigen3/Eigen/src/Core/util/Macros.h | grep VERSION
+
+
+
+
+7. E: collect2: error: ld returned 1 exit status
       examples/CMakeFiles/bicubic_interpolation.dir/build.make:119: recipe for target 'bin/bicubic_interpolation' failed
       make[2]: *** [bin/bicubic_interpolation] Error 1
       CMakeFiles/Makefile2:321: recipe for target 'examples/CMakeFiles/bicubic_interpolation.dir/all' failed
@@ -67,7 +120,7 @@
       make: *** [all] Error 2
    S: reunstall ubuntu
 
-5. when catkin_make LaserCameraCal_ws
+8. when catkin_make LaserCameraCal_ws
    E: CMake Error at /usr/local/lib/cmake/Ceres/FindSuiteSparse.cmake:115 (if):
       if given arguments:
       "CHOLMOD" "IN_LIST" "SuiteSparse_FIND_COMPONENTS"
@@ -84,12 +137,12 @@
 
       ## cmake again
 
-6. when catkin build kalibr_workspace 
+9. when catkin build kalibr_workspace 
     P : catkin:command not found
     S : sudo apt-get install ros-melodic-catkin python-catkin-tools 
 
 
-7. when catkin build kalibr_workspace have error in process
+10. when catkin build kalibr_workspace have error in process
       S :
       ## install dependency package
       sudo apt-get install python-setuptools python-rosinstall ipython libeigen3-dev libboost-all-dev doxygen libopencv-dev ros-melodic-vision-opencv ros-melodic-image-transport-plugins ros-melodic-cmake-modules software-properties-common software-properties-common libpoco-dev python-matplotlib python-scipy python-git python-pip ipython libtbb-dev libblas-dev liblapack-dev python-catkin-tools libv4l-dev
@@ -107,19 +160,19 @@
       cd ~/kalibr_workspace
       catkin build -DCMAKE_BUILD_TYPE=Release -j4
 
-8. when use kalibr_create_target_pdf to make Aprilgrid
+11. when use kalibr_create_target_pdf to make Aprilgrid
       P : No module named pyx
       S : install pyx
       pip install pyx
       or 
       pip install PyX==0.12
 
-9. when use kalibr_create_target_pdf make an apriltag
+12. when use kalibr_create_target_pdf make an apriltag
       P : IOError: [Errno 32] Broken pipe
       S : install python-pyx instead of pyx
       sudo apt install python-pyx
       
-10. when using kalibr_calibrate_cameras to calibrate camera
+13. when using kalibr_calibrate_cameras to calibrate camera
       P : ImportError: No module named igraph
       S : install igraph and jgraph
 
@@ -127,13 +180,13 @@
       pip install jgraph
 
 
-11. when install python-igraph
+14. when install python-igraph
       P : Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-build-V4LfIk/python-igraph/
       S : update gcloud
       pip3 install --upgrade gcloud
       pip3 install --upgrade setuptools
 
-12. when install python-igraph
+15. when install python-igraph
       P : Command "/usr/bin/python -u -c "import setuptools, tokenize;__file__='/tmp/pip-build-qqqg6_66/igraph/setup.py';f=getattr(tokenize, 'open', open)(__file__);code=f.read().replace('\r\n', '\n');f.close();exec(compile(code, __file__, 'exec'))" install --record /tmp/pip-o4x8dl1d-record/install-record.txt --single-version-externally-managed --compile --user --prefix=" failed with error code 1 in /tmp/pip-build-qqqg6_66/igraph/
       S : update setuptools and CMake(higher than 3.16)
       sudo python -m pip install --upgrade --force pip 
