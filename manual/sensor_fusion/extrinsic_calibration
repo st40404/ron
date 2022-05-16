@@ -27,9 +27,16 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
     ## goto your kalibr workspace to make a apriltag
     . devel/setup.bash
 
-    kalibr_create_target_pdf --type apriltag --nx 6 --ny 6 --tsize 0.088 --tspace 0.3
+    rosrun kalibr kalibr_create_target_pdf --type apriltag --nx 6 --ny 6 --tsize 0.088 --tspace 0.3
 
     ## make a bag and yaml
+        ## put realsense driver in LaserCameraCal_ws/src
+        cd ~/LaserCameraCal_ws/src
+        git clone https://github.com/intel-ros/realsense.git
+        git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+        cd ..
+        catkin_make -DCMAKE_BUILD_TYPE=Release
+
         ## go to LaserCameraCal_ws
         roslaunch realsense2_camera rs_camera.launch
         rosrun topic_tools throttle messages /camera/color/image_raw 4.0 /color

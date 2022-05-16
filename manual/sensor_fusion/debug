@@ -19,7 +19,8 @@
         # add the following PPA:
         sudo add-apt-repository ppa:bzindovic/suitesparse-bugfix-1319687
 
-        # install ceres
+        # install ceres(the newest version) 
+        # if you install lastest version, there will have some library problem when you catkin lasercam_ws 
         git clone https://ceres-solver.googlesource.com/ceres-solver
         cd ceres-solver
         mkdir ceres-bin
@@ -29,6 +30,16 @@
         make test
         sudo make install
 
+        # recommand to install cere 1.14.0
+        wget ceres-solver.org/ceres-solver-1.14.0.tar.gz
+        tar xvf ceres-solver-1.14.0.tar.gz 
+        cd ceres-solver-1.14.0/
+        mkdir build
+        cd build
+        cmake ..
+        make -j4
+        make test
+        sudo make install
 
 2. E: The repository 'http://ppa.launchpad.net/bzindovic/suitesparse-bugfix-1319687/ubuntu bionic Release' does not have a Release file.
    R: ppa version is too old 
@@ -47,7 +58,6 @@
 
 
 3. E: Package 'libgoogle-glog-dev' has no installation candidate
-
     S1:   sudo vim /etc/apt/sources.list
        
           # add following code
@@ -93,6 +103,8 @@
       sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 1
       sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 10
 
+      ## change g++ version, but when you catkin kalibr_workspace have problem
+      ## recommand use g++ 7
       sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 1
       sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 10
 
@@ -100,18 +112,17 @@
       gcc --version
       g++ --version
 
-
-
-
-
-
-7. How to check Eigen version
+8. How to check Eigen version
       cat /usr/include/eigen3/Eigen/src/Core/util/Macros.h | grep VERSION
 
+9. When catkin_make LaserCameraCal_ws
+      P : error: expected unqualified-id before ‘,’ token
+      S : 
+      # uninstall ceres 
+            sudo rm -r /usr/local/lib/cmake/Ceres
+            sudo rm -rf /usr/local/include/ceres/usr/local/lib/libceres.a
 
-
-
-7. E: collect2: error: ld returned 1 exit status
+10. E: collect2: error: ld returned 1 exit status
       examples/CMakeFiles/bicubic_interpolation.dir/build.make:119: recipe for target 'bin/bicubic_interpolation' failed
       make[2]: *** [bin/bicubic_interpolation] Error 1
       CMakeFiles/Makefile2:321: recipe for target 'examples/CMakeFiles/bicubic_interpolation.dir/all' failed
@@ -120,7 +131,7 @@
       make: *** [all] Error 2
    S: reunstall ubuntu
 
-8. when catkin_make LaserCameraCal_ws
+11. when catkin_make LaserCameraCal_ws
    E: CMake Error at /usr/local/lib/cmake/Ceres/FindSuiteSparse.cmake:115 (if):
       if given arguments:
       "CHOLMOD" "IN_LIST" "SuiteSparse_FIND_COMPONENTS"
@@ -130,19 +141,18 @@
            sudo vim FindSuiteSparse.cmake
 
      ## add following code in line 115
-
       if(POLICY CMP0057)
             cmake_policy(SET CMP0057 NEW)
       endif()
 
       ## cmake again
 
-9. when catkin build kalibr_workspace 
+12. when catkin build kalibr_workspace 
     P : catkin:command not found
     S : sudo apt-get install ros-melodic-catkin python-catkin-tools 
 
 
-10. when catkin build kalibr_workspace have error in process
+13. when catkin build kalibr_workspace have error in process
       S :
       ## install dependency package
       sudo apt-get install python-setuptools python-rosinstall ipython libeigen3-dev libboost-all-dev doxygen libopencv-dev ros-melodic-vision-opencv ros-melodic-image-transport-plugins ros-melodic-cmake-modules software-properties-common software-properties-common libpoco-dev python-matplotlib python-scipy python-git python-pip ipython libtbb-dev libblas-dev liblapack-dev python-catkin-tools libv4l-dev
@@ -159,6 +169,20 @@
       git clone https://github.com/ethz-asl/Kalibr.git
       cd ~/kalibr_workspace
       catkin build -DCMAKE_BUILD_TYPE=Release -j4
+
+14. when catkin build kalibr_workspace have CMake version error
+      P : error: ISO C++17 does not allow dynamic exception specifications
+      S : g++ verison is not allow verison 11
+      sudo update-alternatives --remove-all g++
+      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 1
+
+
+
+
+
+
+
+
 
 11. when use kalibr_create_target_pdf to make Aprilgrid
       P : No module named pyx
