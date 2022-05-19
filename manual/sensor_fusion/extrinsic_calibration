@@ -27,7 +27,11 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
     ## goto your kalibr workspace to make a apriltag
     . devel/setup.bash
 
+    ## create A0 apriltag
     rosrun kalibr kalibr_create_target_pdf --type apriltag --nx 6 --ny 6 --tsize 0.088 --tspace 0.3
+
+    ## create A4 apriltag
+    rosrun kalibr kalibr_create_target_pdf --type apriltag --nx 6 --ny 6 --tsize 0.025 --tspace 0.32
 
     ## make a bag and yaml
         ## put realsense driver in LaserCameraCal_ws/src
@@ -53,28 +57,34 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
 
         ## put camd435i.bag, aprilgrid.yaml in bagfiles, and make a log file
 
-kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
+            ## aprilgrid.yaml (make by your self)
+            ## A0 paper
+                target_type: 'aprilgrid' #gridtype
+                tagCols: 6               #number of apriltags
+                tagRows: 6               #number of apriltags
+                tagSize: 0.088           #size of apriltag, edge to edge [m]
+                tagSpacing: 0.3          #ratio of space between tags to tagSize
+                                        #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
+            ## A4 paper
+                target_type: 'aprilgrid' #gridtype
+                tagCols: 6               #number of apriltags
+                tagRows: 6               #number of apriltags
+                tagSize: 0.025           #size of apriltag, edge to edge [m]
+                tagSpacing: 0.32         #ratio of space between tags to tagSize
+                                        #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
 
+            ## make a log file in bagfiles
+                mkdir log
 
+        ## get intrinsics vector by bag and yaml
+        ## go to kalibr_workspace
 
-        ## aprilgrid.yaml (make by your self)
-        ## A0 paper
-            target_type: 'aprilgrid' #gridtype
-            tagCols: 6               #number of apriltags
-            tagRows: 6               #number of apriltags
-            tagSize: 0.088           #size of apriltag, edge to edge [m]
-            tagSpacing: 0.3          #ratio of space between tags to tagSize
-                                     #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
-        ## A4 paper
-            target_type: 'aprilgrid' #gridtype
-            tagCols: 6               #number of apriltags
-            tagRows: 6               #number of apriltags
-            tagSize: 0.025           #size of apriltag, edge to edge [m]
-            tagSpacing: 0.32         #ratio of space between tags to tagSize
-                                     #example: tagSize=2m, spacing=0.5m --> tagSpacing=0.25[-]
+        cd ~/kalibr_workspace
 
-        ## make a log file in bagfiles
-            mkdir log
+        rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
+
+        ## get intrinsics
+
 
 ## change calibra_config.yaml 
     ## go to ~/LaserCameraCal_ws/src/CamLaserCalibraTool/config
@@ -108,7 +118,7 @@ kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCa
         fx: x1
         fy: y2
         cx: x3
-        xy: y3
+        cy: y3
 
 
 

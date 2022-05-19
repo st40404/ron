@@ -176,41 +176,38 @@
       sudo update-alternatives --remove-all g++
       sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 1
 
-
-
-
-
-
-
-
-
-11. when use kalibr_create_target_pdf to make Aprilgrid
+15. when use kalibr_create_target_pdf to make Aprilgrid
       P : No module named pyx
       S : install pyx
       pip install pyx
       or 
       pip install PyX==0.12
 
-12. when use kalibr_create_target_pdf make an apriltag
+16. when use kalibr_create_target_pdf make an apriltag
       P : IOError: [Errno 32] Broken pipe
       S : install python-pyx instead of pyx
       sudo apt install python-pyx
       
-13. when using kalibr_calibrate_cameras to calibrate camera
-      P : ImportError: No module named igraph
-      S : install igraph and jgraph
+17. when rosrun kalibr_calibrate_cameras
+      E : No module named igraph
+      S : install igraph first and install python-igraph
+      sudo apt-get install -y libigraph0-dev
+      sudo apt-get install python-igraph
 
-      pip install igraph
-      pip install jgraph
+# 13. when using kalibr_calibrate_cameras to calibrate camera
+#       P : ImportError: No module named igraph
+#       S : install igraph and jgraph
 
+#       pip install igraph
+#       pip install jgraph
 
-14. when install python-igraph
+18. when install python-igraph
       P : Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-build-V4LfIk/python-igraph/
       S : update gcloud
       pip3 install --upgrade gcloud
       pip3 install --upgrade setuptools
 
-15. when install python-igraph
+19. when install python-igraph
       P : Command "/usr/bin/python -u -c "import setuptools, tokenize;__file__='/tmp/pip-build-qqqg6_66/igraph/setup.py';f=getattr(tokenize, 'open', open)(__file__);code=f.read().replace('\r\n', '\n');f.close();exec(compile(code, __file__, 'exec'))" install --record /tmp/pip-o4x8dl1d-record/install-record.txt --single-version-externally-managed --compile --user --prefix=" failed with error code 1 in /tmp/pip-build-qqqg6_66/igraph/
       S : update setuptools and CMake(higher than 3.16)
       sudo python -m pip install --upgrade --force pip 
