@@ -83,16 +83,18 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
 
         rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
 
-        ## get intrinsics
+        ## get intrinsics from camd435i-camchain.yaml
 
 
-## change calibra_config.yaml 
+## set calibra_config.yaml 
     ## go to ~/LaserCameraCal_ws/src/CamLaserCalibraTool/config
         vim calibra_config.yaml
     ## change the savePath to your log
         savePath: "/home/st40404/LaserCameraCal_ws/src/bagfiles/log/"
     ## change the savePath to your bag
         bag_path: "/home/st40404/LaserCameraCal_ws/src/bagfiles/camd435i.bag"
+    ## change the img_topic_name from rostopic list
+        img_topic_name: "/camera/color/image_raw"
     ## set your tag info
         tag_type: 2       # 1: kalibr_tag, 2: apriltag
         tag_size: 0.025   # tag size, unit meter
@@ -110,17 +112,81 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
         image_height: 720
     
     ## set your projection parameters
+    #####  method 1 #####
+        ## record rosbag and use kalibr_calibrate_cameras make camd435i-camchain.yaml
+
+        rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
+
+        ## get intrinsics from camd435i-camchain.yaml
+        ## intrinsics: [fx, fy, cx, cy]    ## (fu, fv, pu, pv)
+
+    #####  method 2 #####
         ## get fx, fy, cx, cy from camera_info
         roslaunch realsense2_camera rs_camera.launch
         rostopic echo /camera/color/camera_info
 
         ## K:[x1, x2, x3, y1, y2, y3, z1, z2, z3]
-        fx: x1
-        fy: y2
-        cx: x3
-        cy: y3
+        fx : x1 ## fu
+        fy : y2 ## fv 
+        cx : x3 ## pu
+        cy : y3 ## pv
+
+################ every code in calibra_config.yaml ################
+
+%YAML:1.0
+
+#common parameters
+savePath: "/home/ron/LaserCameraCal_ws/src/bagfiles/log/"
+bag_path: "/home/ron/LaserCameraCal_ws/src/bagfiles/camd435i.bag"
+
+scan_topic_name: "/scan"
+img_topic_name: "/camera/color/image_raw"
+
+# tag info
+tag_type: 2 # 1: kalibr_tag, 2: apriltag
+tag_size: 0.025 # tag size, unit meter
+tag_spacing: 0.32 # tag spacing, only used in kalibr_tag. For details, please see kalibr tag description.
+black_border: 1 # if you use kalibr_tag black_boarder = 2; if you use apriltag black_boarder = 1
+ 
+#camera calibration 
+model_type: PINHOLE
+camera_name: camera
+image_width: 1280
+image_height: 720
+
+distortion_parameters:
+   k1: 0.10528472676627486
+   k2: -0.18982693529215336
+   p1: -0.0016417761289667222
+   p2: 0.0020621818061473105
+
+projection_parameters:
+   fx: 908.1378786483452
+   fy: 907.865830157352
+   cx: 643.3105098532008
+   cy: 353.9987883072277
+
+ ########################################################################
+
+##　install lidar driver
+    ## git clone urg_node
+    sudo apt-get install ros-melodic-urg-node
+    cd ~/LaserCameraCal_ws/src
+    git clone https://github.com/ros-drivers/urg_node.git
+
+    catkin_make -DCMAKE_BUILD_TYPE=Release
+    
+## forever give the permission for this device
+  ## make the rules
+  cd /etc/udev/rules.d
+  sudo vim 99-hokuyo.rules
+  ## add the following code in 99-hokuyo.rules
+  KERNEL=="ttyACM[0-9]*", ACTION=="add", ATTRS{idVendor}=="15d1", MODE="0666", GROUP="dialout", SYMLINK+="sensors/hokuyo"
+  ## check the permission of your device
+  ls -l /dev/sensors/hokuyo
 
 
 
-## check camera info
-rostopic echo /camera/color/camera_info 
+
+## test 
+    roslaunch lasercamcal_ros kalibra_apriltag.launch
