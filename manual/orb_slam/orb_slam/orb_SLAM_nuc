@@ -223,7 +223,8 @@ to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
   <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/depth_registered/image_raw" />
   <remap from="/camera/color/image_raw"                  to="/camera/rgb/image_raw" />
 
-6.try to run realsense and orb_slam:
+6.try to run realsense and orb_slam: 
+## you sould build ./build_ros.sh in upper manual in  "install orb_slam2" part of 14 and 15 before runing orb_slam
 
 roslaunch realsense2_camera rs_rgbd.launch 
 rosrun ORB_SLAM2 RGBD src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/RGB-D/TUM1.yaml

@@ -83,7 +83,7 @@ sudo apt-get install liblapack-dev
 
 10. install DBoW2 and g2o
 mkdir -p orbslam2/src
-cd orbslam2/src
+cd orbslam2
 catkin_make
 cd src
 git clone https://github.com/raulmur/ORB_SLAM2.git ORB_SLAM2
@@ -161,7 +161,7 @@ go to orbslam2/src/ORB_SLAM2
 roslaunch usb_cam usb_cam-test.launch
 rosrun ORB_SLAM2 Mono src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/Monocular/KITTI00-02.yaml 
 
-17. make a lunch 
+17. make a launch 
 go to _ws/src
 catkin_create_pkg all_process std_msgs rospy roscpp
 cd all_process
