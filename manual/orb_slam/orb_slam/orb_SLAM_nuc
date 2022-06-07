@@ -743,7 +743,11 @@ reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
     open file KeyFrame.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/KeyFrame.h
     add follow code
 
+    ##### under namespace ORB_SLAM2
+    class InitKeyFrame;
     #####
+
+    ##### class KeyFrame : public
     KeyFrame(InitKeyFrame &initkf, Map* pMap, KeyFrameDatabase* pKFDB,vector< MapPoint*>& vpMapPoints);
     #####
 
@@ -772,7 +776,7 @@ reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
     }
     #####
 
-2. add the following include in KeyFrame.h
+2. add the following header in KeyFrame.h
     #include "InitKeyFrame.h"
 
 3. make new .h file in ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude
@@ -1181,7 +1185,26 @@ reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
 
     #####
 
-4. add the reponse in ~/orbslam2/src/ORB_SLAM2
+
+4. declare SetReferenceKeyFrame in MapPoint.h
+    open file MapPoint.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/MapPoint.h
+    add follow code in upper public
+
+    #####
+    KeyFrame* SetReferenceKeyFrame(KeyFrame* RFKF);
+    #####
+
+    open file MapPoint.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/MapPoint.cc
+    add follow code
+    #####
+    KeyFrame* MapPoint::SetReferenceKeyFrame(KeyFrame* RFKF)  
+    {  
+    return mpRefKF = RFKF;  
+    } 
+    #####
+
+
+5. add the dependency in ~/orbslam2/src/ORB_SLAM2
     vim CMakeLists.txt
     ## find add_library(${PROJECT_NAME} SHARED
     ## and add following declare
