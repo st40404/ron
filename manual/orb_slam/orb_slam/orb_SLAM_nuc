@@ -93,7 +93,7 @@ chmod +x build.sh
 
 #### fix CMakeFiles/ORB_SLAM2.dir/src/Viewer.cc.o] Error 1
 source: https://titanwolf.org/Network/Articles/Article?AID=7b222385-061f-4185-9e2f-05df89eef210#gsc.tab=0
-#### the following file need to add #include <unistd.h> 
+#### the following file need to add  " #include <unistd.h> "
 
 Examples/Monocular/mono_euroc.cc
 Examples/Monocular/mono_kitti.cc
@@ -275,256 +275,915 @@ roslaunch all_process orbslam2_rgbd.launch
 
 
 
-
+##############################
 ######   add save map   ######
-reference from: https://blog.csdn.net/KYJL888/article/details/86743129
+##############################
+reference_1 from: https://www.cnblogs.com/mafuqiang/p/6972342.html
+reference_2 from: https://blog.csdn.net/KYJL888/article/details/86743129
 
-1.clone the ORB_SLAM2_map from git in your ws/src
-    git clone https://github.com/xiaopengsu/ORB_SLAM2_map
-
-2.add the saveamp function
-    open file system.h from xxx_ws/src/orb_slam_2_ros/orb_slam2/inlcude/System.h
-    add follow in public 
+1.declare the SaveMap function
+    open file system.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/System.h
+    add follow code
     #####
     void SaveMap(const string &filename); 
     #####
 
-    open file system.cc from xxx_ws/src/orb_slam_2_ros/orb_slam2/src/System.cc
-    add follow function in bottom 
+    open file system.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/System.cc
+    add follow code
     #####
-    void System::SaveMap(const string &filename)  
-    {  
-       mpMap->Save(filename);   
+    void System::SaveMap(const string &filename)
+    {
+        mpMap->Save(filename);
     }
     #####
 
-3.add the savemap button "y"
-    open file ros_mono.cpp from xxx_ws/src/ORB_SLAM2_map/ORB_SLAM2_map/Examples/ROS/ORB_SLAM2/src/ros_mono.cpp
-    add follow command upper ros::spin();    
-    #####
-    char IsSaveMap;  
-    cout << "Do you want to save the map?(Y/N)" << endl;  
-    cin >> IsSaveMap;  
-    if(IsSaveMap == 'Y' || IsSaveMap == 'y')  
-        SLAM.SaveMap("MapPointandKeyFrame.bin");
-    #####
-
-4.declare save,savemappoint and savekeyframe function
-    open file map.h from xxx_ws/src/orb_slam_2_ros/orb_slam2/inlcude/Map.h
-    add copmmand as follow 
-
+2.declare the Save, SaveMapPoint and SaveKeyFrame function 
+    open file Map.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/Map.h
+    add follow code
     #####
     public:
-    void Save( const string &filename );
+        void Save( const string &filename );
     protected:
-    void SaveMapPoint( ofstream &f, MapPoint* mp );
-    void SaveKeyFrame( ofstream &f, KeyFrame* kf );
+        void SaveMapPoint( ofstream &f, MapPoint* mp );
+        void SaveKeyFrame( ofstream &f, KeyFrame* kf );
     #####
 
-    open file system.cc from xxx_ws/src/orb_slam_2_ros/orb_slam2/src/Map.cc
-    add follow function in bottom 
-
-    #####
-    void Map::Save ( const string& filename )
-    {
-     cerr<<"Map Saving to "<<filename <<endl;
-     ofstream f;
-     f.open(filename.c_str(), ios_base::out|ios::binary);
-     cerr << "The number of MapPoints is :"<<mspMapPoints.size()<<endl;
- 
-     //地图点的数目
-     unsigned long int nMapPoints = mspMapPoints.size();
-     f.write((char*)&nMapPoints, sizeof(nMapPoints) );
-     //依次保存MapPoints
-     for ( auto mp: mspMapPoints )
-         SaveMapPoint( f, mp );
-     //获取每一个MapPoints的索引值，即从0开始计数，初始化了mmpnMapPointsIdx  
-     GetMapPointsIdx(); 
-     cerr <<"The number of KeyFrames:"<<mspKeyFrames.size()<<endl;
-     //关键帧的数目
-     unsigned long int nKeyFrames = mspKeyFrames.size();
-     f.write((char*)&nKeyFrames, sizeof(nKeyFrames));
- 
-     //依次保存关键帧KeyFrames
-     for ( auto kf: mspKeyFrames )
-         SaveKeyFrame( f, kf );
- 
-     for (auto kf:mspKeyFrames )
-     {
-         //获得当前关键帧的父节点，并保存父节点的ID
-         KeyFrame* parent = kf->GetParent();
-         unsigned long int parent_id = ULONG_MAX;
-         if ( parent )
-             parent_id = parent->mnId;
-         f.write((char*)&parent_id, sizeof(parent_id));
-         //获得当前关键帧的关联关键帧的大小，并依次保存每一个关联关键帧的ID和weight；//共视图生长树，吗
-         unsigned long int nb_con = kf->GetConnectedKeyFrames().size();
-         f.write((char*)&nb_con, sizeof(nb_con));
-         for ( auto ckf: kf->GetConnectedKeyFrames())
-         {
-             int weight = kf->GetWeight(ckf);
-             f.write((char*)&ckf->mnId, sizeof(ckf->mnId));
-             f.write((char*)&weight, sizeof(weight));
-         }
-     }
- 
-     f.close();
-     cerr<<"Map Saving Finished!"<<endl;
-    }
-
-
-    void Map::SaveMapPoint( ofstream& f, MapPoint* mp)
-    {   
-     //保存当前MapPoint的ID和世界坐标值
-     f.write((char*)&mp->mnId, sizeof(mp->mnId));
-     cv::Mat mpWorldPos = mp->GetWorldPos();
-     f.write((char*)& mpWorldPos.at<float>(0),sizeof(float));
-     f.write((char*)& mpWorldPos.at<float>(1),sizeof(float));
-     f.write((char*)& mpWorldPos.at<float>(2),sizeof(float));
-    }
-
-    void Map::SaveKeyFrame( ofstream &f, KeyFrame* kf )
-    {
-    //保存当前关键帧的ID和时间戳
-     f.write((char*)&kf->mnId, sizeof(kf->mnId));
-     f.write((char*)&kf->mTimeStamp, sizeof(kf->mTimeStamp));
-     //保存当前关键帧的位姿矩阵
-     cv::Mat Tcw = kf->GetPose();
-     //通过四元数保存旋转矩阵
-     std::vector<float> Quat = Converter::toQuaternion(Tcw);
-     for ( int i = 0; i < 4; i ++ )
-         f.write((char*)&Quat[i],sizeof(float));
-     //保存平移矩阵
-     for ( int i = 0; i < 3; i ++ )
-         f.write((char*)&Tcw.at<float>(i,3),sizeof(float));
- 
- 
-     //直接保存旋转矩阵
-    //  for ( int i = 0; i < Tcw.rows; i ++ )
-    //  {
-    //      for ( int j = 0; j < Tcw.cols; j ++ )
-    //      {
-    //              f.write((char*)&Tcw.at<float>(i,j), sizeof(float));
-    //              //cerr<<"Tcw.at<float>("<<i<<","<<j<<"):"<<Tcw.at<float>(i,j)<<endl;
-    //      }
-    //    }
+    open file Map.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/Map.cc
+    add follow code
+    ##### add comment code and uncomment
     
-     //保存当前关键帧包含的ORB特征数目
-     //cerr<<"kf->N:"<<kf->N<<endl;
-     f.write((char*)&kf->N, sizeof(kf->N));
-     //保存每一个ORB特征点
-     for( int i = 0; i < kf->N; i ++ )
-     {
-         cv::KeyPoint kp = kf->mvKeys[i];
-         f.write((char*)&kp.pt.x, sizeof(kp.pt.x));
-         f.write((char*)&kp.pt.y, sizeof(kp.pt.y));
-         f.write((char*)&kp.size, sizeof(kp.size));
-         f.write((char*)&kp.angle,sizeof(kp.angle));
-         f.write((char*)&kp.response, sizeof(kp.response));
-         f.write((char*)&kp.octave, sizeof(kp.octave));
- 
-         //保存当前特征点的描述符
-         for (int j = 0; j < kf->mDescriptors.cols; j ++ )
-                 f.write((char*)&kf->mDescriptors.at<unsigned char>(i,j), sizeof(char));
- 
-         //保存当前ORB特征对应的MapPoints的索引值
-         unsigned long int mnIdx;
-         MapPoint* mp = kf->GetMapPoint(i);
-         if (mp == NULL  )
-                 mnIdx = ULONG_MAX;
-         else
-                 mnIdx = mmpnMapPointsIdx[mp];
- 
-         f.write((char*)&mnIdx, sizeof(mnIdx));
-     }
-    }
+    # void Map::Save ( const string& filename )
+    
+    # {
+    #     cerr<<"Map Saving to "<<filename <<endl;
+    #     ofstream f;
+    #     f.open(filename.c_str(), ios_base::out|ios::binary);
+    #     cerr << "The number of MapPoints is :"<<mspMapPoints.size()<<endl;
+    
+    #     //地图点的数目
+    #     unsigned long int nMapPoints = mspMapPoints.size();
+    #     f.write((char*)&nMapPoints, sizeof(nMapPoints) );
+    #     //依次保存MapPoints
+    #     for ( auto mp: mspMapPoints )
+    #         SaveMapPoint( f, mp );
+    #     //获取每一个MapPoints的索引值，即从0开始计数，初始化了mmpnMapPointsIdx       GetMapPointsIdx(); 
+    #     cerr <<"The number of KeyFrames:"<<mspKeyFrames.size()<<endl;
+    #     //关键帧的数目
+    #     unsigned long int nKeyFrames = mspKeyFrames.size();
+    #     f.write((char*)&nKeyFrames, sizeof(nKeyFrames));
+    
+    #     //依次保存关键帧KeyFrames
+    #     for ( auto kf: mspKeyFrames )
+    #         SaveKeyFrame( f, kf );
+    
+    #     for (auto kf:mspKeyFrames )
+    #     {
+    #         //获得当前关键帧的父节点，并保存父节点的ID
+    #         KeyFrame* parent = kf->GetParent();
+    #         unsigned long int parent_id = ULONG_MAX;
+    #         if ( parent )
+    #             parent_id = parent->mnId;
+    #         f.write((char*)&parent_id, sizeof(parent_id));
+    #         //获得当前关键帧的关联关键帧的大小，并依次保存每一个关联关键帧的ID和weight；
+    #         unsigned long int nb_con = kf->GetConnectedKeyFrames().size();
+    #         f.write((char*)&nb_con, sizeof(nb_con));
+    #         for ( auto ckf: kf->GetConnectedKeyFrames())
+    #         {
+    #             int weight = kf->GetWeight(ckf);
+    #             f.write((char*)&ckf->mnId, sizeof(ckf->mnId));
+    #             f.write((char*)&weight, sizeof(weight));
+    #         }
+    #     }
+    
+    #     f.close();
+    #     cerr<<"Map Saving Finished!"<<endl;
+    # }
 
-    void Map::GetMapPointsIdx()
+    # void Map::SaveMapPoint( ofstream& f, MapPoint* mp)
+    # {   
+    #     //保存当前MapPoint的ID和世界坐标值
+    #     f.write((char*)&mp->mnId, sizeof(mp->mnId));
+    #     cv::Mat mpWorldPos = mp->GetWorldPos();
+    #     f.write((char*)& mpWorldPos.at<float>(0),sizeof(float));
+    #     f.write((char*)& mpWorldPos.at<float>(1),sizeof(float));
+    #     f.write((char*)& mpWorldPos.at<float>(2),sizeof(float));
+    # }
+
+    # void Map::SaveKeyFrame( ofstream &f, KeyFrame* kf )
+    # {
+    # //保存当前关键帧的ID和时间戳
+    #     f.write((char*)&kf->mnId, sizeof(kf->mnId));
+    #     f.write((char*)&kf->mTimeStamp, sizeof(kf->mTimeStamp));
+    #     //保存当前关键帧的位姿矩阵
+    #     cv::Mat Tcw = kf->GetPose();
+    #     //通过四元数保存旋转矩阵
+    #     std::vector<float> Quat = Converter::toQuaternion(Tcw);
+    #     for ( int i = 0; i < 4; i ++ )
+    #         f.write((char*)&Quat[i],sizeof(float));
+    #     //保存平移矩阵
+    #     for ( int i = 0; i < 3; i ++ )
+    #         f.write((char*)&Tcw.at<float>(i,3),sizeof(float));
+    
+    
+    #     //直接保存旋转矩阵
+    # //  for ( int i = 0; i < Tcw.rows; i ++ )
+    # //  {
+    # //      for ( int j = 0; j < Tcw.cols; j ++ )
+    # //      {
+    # //              f.write((char*)&Tcw.at<float>(i,j), sizeof(float));
+    # //              //cerr<<"Tcw.at<float>("<<i<<","<<j<<"):"<<Tcw.at<float>(i,j)<<endl;
+    # //      }
+    # //    }
+    
+    #     //保存当前关键帧包含的ORB特征数目
+    #     //cerr<<"kf->N:"<<kf->N<<endl;
+    #     f.write((char*)&kf->N, sizeof(kf->N));
+    #     //保存每一个ORB特征点
+    #     for( int i = 0; i < kf->N; i ++ )
+    #     {
+    #         cv::KeyPoint kp = kf->mvKeys[i];
+    #         f.write((char*)&kp.pt.x, sizeof(kp.pt.x));
+    #         f.write((char*)&kp.pt.y, sizeof(kp.pt.y));
+    #         f.write((char*)&kp.size, sizeof(kp.size));
+    #         f.write((char*)&kp.angle,sizeof(kp.angle));
+    #         f.write((char*)&kp.response, sizeof(kp.response));
+    #         f.write((char*)&kp.octave, sizeof(kp.octave));
+    
+    #         //保存当前特征点的描述符
+    #         for (int j = 0; j < kf->mDescriptors.cols; j ++ )
+    #                 f.write((char*)&kf->mDescriptors.at<unsigned char>(i,j), sizeof(char));
+    
+    #         //保存当前ORB特征对应的MapPoints的索引值
+    #         unsigned long int mnIdx;
+    #         MapPoint* mp = kf->GetMapPoint(i);
+    #         if (mp == NULL  )
+    #                 mnIdx = ULONG_MAX;
+    #         else
+    #                 mnIdx = mmpnMapPointsIdx[mp];
+    
+    #         f.write((char*)&mnIdx, sizeof(mnIdx));
+    #     }
+    # }
+    # 
+    # void Map::GetMapPointsIdx()
+    # {
+    #     unique_lock<mutex> lock(mMutexMap);
+    #     unsigned long int i = 0;
+    #     for ( auto mp: mspMapPoints )
+    #     {
+    #         mmpnMapPointsIdx[mp] = i;
+    #         i += 1;
+    #     }
+    # }
+
+    #####
+
+3.declare the toQuaternion and toCvMat function 
+    open file Converter.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/Converter.cc
+    add follow code
+    ##### 
+
+    std::vector<float> Converter::toQuaternion(const cv::Mat &M)
+    {   
+        Eigen::Matrix<double,3,3> eigMat = toMatrix3d(M);
+        Eigen::Quaterniond q(eigMat);
+        
+        std::vector<float> v(4);
+        v[0] = q.x();
+        v[1] = q.y();
+        v[2] = q.z();
+        v[3] = q.w();
+        
+        return v;
+    }
+    cv::Mat Converter::toCvMat( const std::vector<float>& v )
     {
-          unique_lock<mutex> lock(mMutexMap);
-          unsigned long int i = 0;
-          for ( auto mp: mspMapPoints )
-          {
-                  mmpnMapPointsIdx[mp] = i;
-                  i += 1;
-          }
+            Eigen::Quaterniond q;
+            q.x()  = v[0];
+            q.y()  = v[1];
+            q.z()  = v[2];
+            q.w()  = v[3];
+            Eigen::Matrix<double,3,3>eigMat(q);
+            cv::Mat M = toCvMat(eigMat);
+            return M;
+    }
+
+    #####
+
+3.add SaveMap function in ros_rgbd.cc
+    open file ros_rgbd.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/ros_rgbd.cc
+    add follow code
+    ##### between SLAM.Shutdown(); and SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+
+    SLAM.SaveMap("SaveMap.bin");
+
+4.execute orbslam2_rgbd.launch
+
+    roslaunch all_process orbslam2_rgbd.launch
+    ## after mapping, use Ctrl+C to leave and save the map
+    ## you can find SaveMap.bin and KeyFrameTrajectory.txt in ~/.ros
+
+
+
+
+##############################
+######   add load map   ######
+##############################
+reference_1 from: https://www.cnblogs.com/mafuqiang/p/6972841.html
+reference_2 from: https://www.cnblogs.com/mafuqiang/p/7002568.html
+reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
+
+1.declare the Load, LoadMapPoint and LoadKeyFrame function in Map.h
+    open file Map.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/Map.h
+    add follow code in head
+    #####
+    #include "SystemSetting.h"
+    #####
+
+    and add follow code in public
+    #####
+    void Load( const string &filename, SystemSetting* mySystemSetting );
+    MapPoint* LoadMapPoint( ifstream &f );
+    KeyFrame* LoadKeyFrame( ifstream &f, SystemSetting* mySystemSetting ); 
+    #####
+
+
+    open file Map.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/Map.cc
+    add following function in Map.cc
+    ##### add comment code and uncomment
+
+    # void Map::Load ( const string &filename, SystemSetting* mySystemSetting )
+    #  {
+    #      cerr << "Map reading from:"<<filename<<endl;
+    #      ifstream f;
+    #      f.open( filename.c_str() );
+    
+    #      //按照保存的顺序，先读取MapPoints的数目；
+    #      unsigned long int nMapPoints;
+    #      f.read((char*)&nMapPoints, sizeof(nMapPoints));
+    
+    #      //依次读取每一个MapPoints，并将其加入到地图中
+    #      cerr<<"The number of MapPoints:"<<nMapPoints<<endl;
+    #      for ( unsigned int i = 0; i < nMapPoints; i ++ )
+    #      {
+    #          MapPoint* mp = LoadMapPoint(f);
+    #          AddMapPoint(mp);
+    #      }
+    
+    #      //获取所有的MapPoints；
+    #      std::vector<MapPoint*> vmp = GetAllMapPoints();
+    
+    #      //读取关键帧的数目；
+    #      unsigned long int nKeyFrames;
+    #      f.read((char*)&nKeyFrames, sizeof(nKeyFrames));
+    #      cerr<<"The number of KeyFrames:"<<nKeyFrames<<endl;
+    
+    #      //依次读取每一关键帧，并加入到地图；
+    #      vector<KeyFrame*>kf_by_order;
+    #      for( unsigned int i = 0; i < nKeyFrames; i ++ )
+    #      {
+    #          KeyFrame* kf = LoadKeyFrame(f, mySystemSetting);
+    #          AddKeyFrame(kf);
+    #          kf_by_order.push_back(kf);
+    #      }
+    
+    #      cerr<<"KeyFrame Load OVER!"<<endl;
+    #      //读取生长树；
+    #      map<unsigned long int, KeyFrame*> kf_by_id;
+    #      for ( auto kf: mspKeyFrames )
+    #          kf_by_id[kf->mnId] = kf;
+    #      cerr<<"Start Load The Parent!"<<endl;
+    #      for( auto kf: kf_by_order )
+    #      {
+    #          //读取当前关键帧的父节点ID；
+    #          unsigned long int parent_id;
+    #          f.read((char*)&parent_id, sizeof(parent_id));
+    
+    #          //给当前关键帧添加父节点关键帧；
+    #          if ( parent_id != ULONG_MAX )
+    #              kf->ChangeParent(kf_by_id[parent_id]);
+    
+    #          //读取当前关键帧的关联关系；
+    #          //先读取当前关键帧的关联关键帧的数目；
+    #          unsigned long int nb_con;
+    #          f.read((char*)&nb_con, sizeof(nb_con));
+    #          //然后读取每一个关联关键帧的ID和weight，并把该关联关键帧加入关系图中；
+    #          for ( unsigned long int i = 0; i < nb_con; i ++ )
+    #          {
+    #              unsigned long int id;
+    #              int weight;
+    #              f.read((char*)&id, sizeof(id));
+    #              f.read((char*)&weight, sizeof(weight));
+    #              kf->AddConnection(kf_by_id[id],weight);
+    #          }
+    #     }
+    #     cerr<<"Parent Load OVER!"<<endl;
+    #     for ( auto mp: vmp )
+    #     {
+    #         if(mp)
+    #         {
+    #              mp->ComputeDistinctiveDescriptors();
+    #              mp->UpdateNormalAndDepth();
+    #          }
+    #     }
+    #      f.close();
+    #      cerr<<"Load IS OVER!"<<endl;
+    #      return;
+    #  }
+
+    #  MapPoint* Map::LoadMapPoint( ifstream &f )
+    #  {
+    #          //主要包括MapPoints的位姿和ID；
+    #          cv::Mat Position(3,1,CV_32F);
+    #          long unsigned int id;
+    #          f.read((char*)&id, sizeof(id));
+    
+    #          f.read((char*)&Position.at<float>(0), sizeof(float));
+    #          f.read((char*)&Position.at<float>(1), sizeof(float));
+    #          f.read((char*)&Position.at<float>(2), sizeof(float));
+    
+    #          //初始化一个MapPoint，并设置其ID和Position；
+    #          MapPoint* mp = new MapPoint(Position, this );
+    #          mp->mnId = id;
+    #          mp->SetWorldPos( Position );
+    
+    #          return mp;
+    #  }
+
+    #  KeyFrame* Map::LoadKeyFrame( ifstream &f, SystemSetting* mySystemSetting )
+    #  {
+    #      //声明一个初始化关键帧的类initkf；
+    #      InitKeyFrame initkf(*mySystemSetting);
+    
+    #      //按照保存次序，依次读取关键帧的ID和时间戳；
+    #      f.read((char*)&initkf.nId, sizeof(initkf.nId));
+    #      f.read((char*)&initkf.TimeStamp, sizeof(double));
+    
+    #      //读取关键帧位姿矩阵；
+    #      cv::Mat T = cv::Mat::zeros(4,4,CV_32F);
+    #      std::vector<float> Quat(4);
+    #      //Quat.reserve(4);
+    #      for ( int i = 0; i < 4; i ++ )
+    #          f.read((char*)&Quat[i],sizeof(float));
+    #      cv::Mat R = Converter::toCvMat( Quat );
+    #      for ( int i = 0; i < 3; i ++ )
+    #          f.read((char*)&T.at<float>(i,3),sizeof(float));
+    #      for ( int i = 0; i < 3; i ++ )
+    #          for ( int j = 0; j < 3; j ++ )
+    #              T.at<float>(i,j) = R.at<float>(i,j);
+    #      T.at<float>(3,3) = 1;
+    
+    #  //    for ( int i = 0; i < 4; i ++ )
+    #  //    {
+    #  //      for ( int j = 0; j < 4; j ++ )
+    #  //      {
+    #  //              f.read((char*)&T.at<float>(i,j), sizeof(float));
+    #  //              cerr<<"T.at<float>("<<i<<","<<j<<"):"<<T.at<float>(i,j)<<endl;
+    #  //      }
+    #  //    }
+    
+    #      //读取当前关键帧特征点的数目；
+    #      f.read((char*)&initkf.N, sizeof(initkf.N));
+    #      initkf.vKps.reserve(initkf.N);
+    #      initkf.Descriptors.create(initkf.N, 32, CV_8UC1);
+    #      vector<float>KeypointDepth;
+    
+    #      std::vector<MapPoint*> vpMapPoints;
+    #      vpMapPoints = vector<MapPoint*>(initkf.N,static_cast<MapPoint*>(NULL));
+    #      //依次读取当前关键帧的特征点和描述符；
+    #      std::vector<MapPoint*> vmp = GetAllMapPoints();
+    #      for(int i = 0; i < initkf.N; i ++ )
+    #      {
+    #          cv::KeyPoint kp;
+    #          f.read((char*)&kp.pt.x, sizeof(kp.pt.x));
+    #          f.read((char*)&kp.pt.y, sizeof(kp.pt.y));
+    #          f.read((char*)&kp.size, sizeof(kp.size));
+    #          f.read((char*)&kp.angle,sizeof(kp.angle));
+    #          f.read((char*)&kp.response, sizeof(kp.response));
+    #          f.read((char*)&kp.octave, sizeof(kp.octave));
+    
+    #          initkf.vKps.push_back(kp);
+    
+    #          //根据需要读取特征点的深度值；
+    #          //float fDepthValue = 0.0;
+    #          //f.read((char*)&fDepthValue, sizeof(float));
+    #          //KeypointDepth.push_back(fDepthValue);
+    
+    #          //读取当前特征点的描述符；
+    #          for ( int j = 0; j < 32; j ++ )
+    #                  f.read((char*)&initkf.Descriptors.at<unsigned char>(i,j),sizeof(char));
+    
+    #          //读取当前特征点和MapPoints的对应关系；
+    #          unsigned long int mpidx;
+    #          f.read((char*)&mpidx, sizeof(mpidx));
+    
+    #          //从vmp这个所有的MapPoints中查找当前关键帧的MapPoint，并插入
+    #          if( mpidx == ULONG_MAX )
+    #                  vpMapPoints[i] = NULL;
+    #          else
+    #                  vpMapPoints[i] = vmp[mpidx];
+    #      }
+    
+    #      initkf.vRight = vector<float>(initkf.N,-1);
+    #      initkf.vDepth = vector<float>(initkf.N,-1);
+    #      //initkf.vDepth = KeypointDepth;
+    #      initkf.UndistortKeyPoints();
+    #      initkf.AssignFeaturesToGrid();
+    
+    #      //使用initkf初始化一个关键帧，并设置相关参数
+    #      KeyFrame* kf = new KeyFrame( initkf, this, NULL, vpMapPoints );
+    #      kf->mnId = initkf.nId;
+    #      kf->SetPose(T);
+    #      kf->ComputeBoW();
+
+    #      for ( int i = 0; i < initkf.N; i ++ )
+    #      {
+    #          if ( vpMapPoints[i] )
+    #          {
+    #              vpMapPoints[i]->AddObservation(kf,i);
+    #              if( !vpMapPoints[i]->GetReferenceKeyFrame())
+    #                  vpMapPoints[i]->SetReferenceKeyFrame(kf);
+    #          }
+    #      }
+    #      return kf;
+    #  }
+
+    #####
+
+    declare MapPoint in MapPoint.h
+    open file MapPoint.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/MapPoint.h
+    add follow code
+
+    #####
+    MapPoint( const cv::Mat& Pos, Map* pMap );
+    #####
+
+    declare MapPoint in MapPoint.cc
+    open file MapPoint.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/MapPoint.cc
+    add follow code
+
+    #####
+    MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap):
+        mnFirstKFid(0), mnFirstFrame(0), nObs(0), mnTrackReferenceForFrame(0), mnLastFrameSeen(0), mnBALocalForKF(0), mnFuseCandidateForKF(0), mnLoopPointForKF(0), mnCorrectedByKF(0),
+        mnCorrectedReference(0), mnBAGlobalForKF(0), mpRefKF(static_cast<KeyFrame*>(NULL)), mnVisible(1), mnFound(1), mbBad(false),
+        mpReplaced(static_cast<MapPoint*>(NULL)), mfMinDistance(0), mfMaxDistance(0), mpMap(pMap)
+    {
+        Pos.copyTo(mWorldPos);
+        mNormalVector = cv::Mat::zeros(3,1,CV_32F);
+
+        // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
+        unique_lock<mutex> lock(mpMap->mMutexPointCreation);
+        mnId=nNextId++;
+    }
+    #####
+
+
+
+    declare KeyFrame in KeyFrame.h
+    open file KeyFrame.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/KeyFrame.h
+    add follow code
+
+    #####
+    KeyFrame(InitKeyFrame &initkf, Map* pMap, KeyFrameDatabase* pKFDB,vector< MapPoint*>& vpMapPoints);
+    #####
+
+    declare KeyFrame in KeyFrame.cc
+    open file KeyFrame.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/KeyFrame.cc
+    add follow code
+
+    #####
+    KeyFrame::KeyFrame(InitKeyFrame &initkf, Map *pMap, KeyFrameDatabase *pKFDB, vector<MapPoint*> &vpMapPoints):
+        mnFrameId(0), mTimeStamp(initkf.TimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+        mfGridElementWidthInv(initkf.fGridElementWidthInv), mfGridElementHeightInv(initkf.fGridElementHeightInv),
+        mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0),
+        mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0),
+        fx(initkf.fx), fy(initkf.fy), cx(initkf.cx), cy(initkf.cy), invfx(initkf.invfx),
+        invfy(initkf.invfy), mbf(initkf.bf), mb(initkf.b), mThDepth(initkf.ThDepth), N(initkf.N),
+        mvKeys(initkf.vKps), mvKeysUn(initkf.vKpsUn), mvuRight(initkf.vRight), mvDepth(initkf.vDepth),
+        mDescriptors(initkf.Descriptors.clone()), mBowVec(initkf.BowVec), mFeatVec(initkf.FeatVec),
+        mnScaleLevels(initkf.nScaleLevels), mfScaleFactor(initkf.fScaleFactor), mfLogScaleFactor(initkf.fLogScaleFactor),
+        mvScaleFactors(initkf.vScaleFactors), mvLevelSigma2(initkf.vLevelSigma2),mvInvLevelSigma2(initkf.vInvLevelSigma2),
+        mnMinX(initkf.nMinX), mnMinY(initkf.nMinY), mnMaxX(initkf.nMaxX), mnMaxY(initkf.nMaxY), mK(initkf.K),
+        mvpMapPoints(vpMapPoints), mpKeyFrameDB(pKFDB), mpORBvocabulary(initkf.pVocabulary),
+        mbFirstConnection(true), mpParent(NULL), mbNotErase(false), mbToBeErased(false), mbBad(false),
+        mHalfBaseline(initkf.b/2), mpMap(pMap)
+    {
+        mnId = nNextId ++;
+    }
+    #####
+
+2. add the following include in KeyFrame.h
+    #include "InitKeyFrame.h"
+
+3. make new .h file in ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude
+
+    a. first file
+    ##### make new file >> SystemSetting.h
+
+    #ifndef SYSTEMSETTING_H
+    #define SYSTEMSETTING_H
+
+    #include <string>
+    #include "ORBVocabulary.h"
+    #include<opencv2/core/core.hpp>
+
+    namespace ORB_SLAM2 {
+        
+        class SystemSetting{
+            
+            //Load camera parameters from setting file
+        public:
+
+            SystemSetting(ORBVocabulary* pVoc);
+            //SystemSetting::SystemSetting(ORBVocabulary* pVoc, KeyFrameDatabase* pKFDB );
+
+            bool LoadSystemSetting(const std::string strSettingPath);
+            
+        public:
+            //The Vocabulary and KeyFrameDatabase
+            ORBVocabulary* pVocabulary;
+            //KeyFrameDatabase* pKeyFrameDatabase;
+
+
+            //Camera parameters
+            float width;
+            float height;
+            float fx;
+            float fy;
+            float cx;
+            float cy;
+            float invfx;
+            float invfy;
+            float bf;
+            float b;
+            float fps;
+            cv::Mat K;
+            cv::Mat DistCoef;
+            bool initialized;
+            
+            //Camera RGB parameters
+            int nRGB;
+            
+            //ORB feature parameters
+            int nFeatures;
+            float fScaleFactor;
+            int nLevels;
+            float fIniThFAST;
+            float fMinThFAST;
+            
+            //other parameters
+            float ThDepth = -1;
+            float DepthMapFactor = -1;
+            
+        };
+        
+    } //namespace ORB_SLAM2
+
+    #endif //SystemSetting
+
+    ##### 
+    
+    b. second file
+    ##### make new file >> InitKeyFrame.h
+    ##### copy the following comment code and uncomment them
+
+    # #ifndef INITKEYFRAME_H
+    # #define INITKEYFRAME_H
+
+    # #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
+    # #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
+    # #include "SystemSetting.h"
+    # #include <opencv2/opencv.hpp>
+    # #include "ORBVocabulary.h"
+    # #include "KeyFrameDatabase.h"
+    # //#include "MapPoints.h"
+
+    # namespace ORB_SLAM2
+    # {
+
+    # #define FRAME_GRID_ROWS 48
+    # #define FRAME_GRID_COLS 64
+
+    # class SystemSetting;
+    # class KeyFrameDatabase;
+    # //class ORBVocabulary;
+
+    # class InitKeyFrame
+    # {
+    # public:    
+    #     InitKeyFrame(SystemSetting &SS);
+        
+    #     void UndistortKeyPoints();
+    #     bool PosInGrid(const cv::KeyPoint& kp, int &posX, int &posY);
+    #     void AssignFeaturesToGrid();
+
+    # public:
+
+    #     ORBVocabulary* pVocabulary;
+    #     //KeyFrameDatabase* pKeyFrameDatabase;
+
+    #     long unsigned int nId;
+    #     double TimeStamp;
+        
+    #     float fGridElementWidthInv;
+    #     float fGridElementHeightInv;
+    #     std::vector<std::size_t> vGrid[FRAME_GRID_COLS][FRAME_GRID_ROWS];
+        
+    #     float fx;
+    #     float fy;
+    #     float cx;
+    #     float cy;
+    #     float invfx;
+    #     float invfy;
+    #     float bf;
+    #     float b;
+    #     float ThDepth;
+    #     int N;
+    #     std::vector<cv::KeyPoint> vKps;
+    #     std::vector<cv::KeyPoint> vKpsUn;
+    #     cv::Mat Descriptors;
+        
+    #     //it's zero for mono
+    #     std::vector<float> vRight;
+    #     std::vector<float> vDepth;
+        
+    #     DBoW2::BowVector BowVec;
+    #     DBoW2::FeatureVector FeatVec;
+        
+    #     int nScaleLevels;
+    #     float fScaleFactor;
+    #     float fLogScaleFactor;
+    #     std::vector<float> vScaleFactors;
+    #     std::vector<float> vLevelSigma2;
+    #     std::vector<float> vInvLevelSigma2;
+    #     std::vector<float> vInvScaleFactors;
+        
+    #     int nMinX;
+    #     int nMinY;
+    #     int nMaxX;
+    #     int nMaxY;
+    #     cv::Mat K;
+    #     cv::Mat DistCoef;    
+        
+    # };
+
+    # } //namespace ORB_SLAM2
+    # #endif //INITKEYFRAME_H
+
+    #####
+
+3. make new .cc file in ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src
+
+    a. first file
+    ##### make new file >> SystemSetting.cc
+    ##### copy the following comment code and uncomment them
+
+    # #include <iostream>
+
+    # #include "SystemSetting.h"
+
+    # using namespace std;
+
+    # namespace ORB_SLAM2 {
+        
+    #     SystemSetting::SystemSetting(ORBVocabulary* pVoc):
+    #         pVocabulary(pVoc)
+    #         {
+    #         }
+
+    #     //SystemSetting::SystemSetting(ORBVocabulary* pVoc, KeyFrameDatabase* pKFDB):
+    #     //    pVocabulary(pVoc), pKeyFrameDatabase(pKFDB)
+    #     //    {
+    #     //    }
+
+
+    #     bool SystemSetting::LoadSystemSetting(const std::string strSettingPath){
+    #         cout<<endl<<"Loading System Parameters form:"<<strSettingPath<<endl;
+    #         cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    #         width  = fSettings["Camera.width"];
+    #         height = fSettings["Camera.height"];
+    #         fx     = fSettings["Camera.fx"];
+    #         fy     = fSettings["Camera.fy"];
+    #         cx     = fSettings["Camera.cx"];
+    #         cy     = fSettings["Camera.cy"];
+            
+    #         cv::Mat tmpK = cv::Mat::eye(3,3,CV_32F);
+    #         tmpK.at<float>(0,0) = fx;
+    #         tmpK.at<float>(1,1) = fy;
+    #         tmpK.at<float>(0,2) = cx;
+    #         tmpK.at<float>(1,2) = cy;
+    #         tmpK.copyTo(K);
+            
+    #         cv::Mat tmpDistCoef(4,1,CV_32F);
+    #         tmpDistCoef.at<float>(0) = fSettings["Camera.k1"];
+    #         tmpDistCoef.at<float>(1) = fSettings["Camera.k2"];
+    #         tmpDistCoef.at<float>(2) = fSettings["Camera.p1"];
+    #         tmpDistCoef.at<float>(3) = fSettings["Camera.p2"];
+    #         const float k3 = fSettings["Camera.k3"];
+    #         if( k3!=0 )
+    #         {
+    #             tmpDistCoef.resize(5);
+    #             tmpDistCoef.at<float>(4) = k3;
+    #         }
+    #         tmpDistCoef.copyTo( DistCoef );
+            
+    #         bf = fSettings["Camera.bf"];
+    #         fps= fSettings["Camera.fps"];
+            
+    #         invfx = 1.0f/fx;
+    #         invfy = 1.0f/fy;
+    #         b     = bf  /fx;
+    #         initialized = true;
+            
+    #         cout<<"- size:"<<width<<"x"<<height<<endl;
+    #         cout<<"- fx:"  <<fx<<endl;
+    #         cout << "- fy: " << fy << endl;
+    #         cout << "- cx: " << cx << endl;
+    #         cout << "- cy: " << cy << endl;
+    #         cout << "- k1: " << DistCoef.at<float>(0) << endl;
+    #         cout << "- k2: " << DistCoef.at<float>(1) << endl;
+    #         if(DistCoef.rows==5)
+    #             cout << "- k3: " << DistCoef.at<float>(4) << endl;
+    #         cout << "- p1: " << DistCoef.at<float>(2) << endl;
+    #         cout << "- p2: " << DistCoef.at<float>(3) << endl;
+    #         cout << "- bf: " << bf << endl;
+            
+    #         //Load RGB parameter
+    #         nRGB = fSettings["Camera.RGB"];
+            
+    #         //Load ORB feature parameters
+    #         nFeatures = fSettings["ORBextractor.nFeatures"];
+    #         fScaleFactor = fSettings["ORBextractor.scaleFactor"];
+    #         nLevels = fSettings["ORBextractor.nLevels"];
+    #         fIniThFAST = fSettings["ORBextractor.iniThFAST"];
+    #         fMinThFAST = fSettings["ORBextractor.minThFAST"];
+            
+    #         cout << endl  << "ORB Extractor Parameters: " << endl;
+    #         cout << "- Number of Features: " << nFeatures << endl;
+    #         cout << "- Scale Levels: " << nLevels << endl;
+    #         cout << "- Scale Factor: " << fScaleFactor << endl;
+    #         cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
+    #         cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
+
+    #         //Load others parameters, if the sensor is MONOCULAR, the parameters is zero;
+    #         //ThDepth = fSettings["ThDepth"];
+    #         //DepthMapFactor = fSettings["DepthMapFactor"];
+    #         fSettings.release();
+    #         return true;
+    #     }
+        
+        
+        
+        
+    # }
+    #####
+
+
+    b. second file
+    ##### make new file >> InitKeyFrame.cc
+
+    #include "InitKeyFrame.h"
+    #include <opencv2/opencv.hpp>
+    #include "SystemSetting.h"
+
+    namespace ORB_SLAM2
+    {
+
+    InitKeyFrame::InitKeyFrame(SystemSetting &SS):pVocabulary(SS.pVocabulary)//, pKeyFrameDatabase(SS.pKeyFrameDatabase)
+    {
+        fx = SS.fx;
+        fy = SS.fy;
+        cx = SS.cx;
+        cy = SS.cy;
+        invfx = SS.invfx;
+        invfy = SS.invfy;
+        bf = SS.bf;
+        b  = SS.b;
+        ThDepth = SS.ThDepth;
+
+        nScaleLevels = SS.nLevels;
+        fScaleFactor = SS.fScaleFactor;
+        fLogScaleFactor = log(SS.fScaleFactor);
+        vScaleFactors.resize(nScaleLevels);
+        vLevelSigma2.resize(nScaleLevels);
+        vScaleFactors[0] = 1.0f;
+        vLevelSigma2[0]  = 1.0f;
+        for ( int i = 1; i < nScaleLevels; i ++ )
+        {
+            vScaleFactors[i] = vScaleFactors[i-1]*fScaleFactor;
+            vLevelSigma2[i]  = vScaleFactors[i]*vScaleFactors[i];
+        }
+        
+        vInvScaleFactors.resize(nScaleLevels);
+        vInvLevelSigma2.resize(nScaleLevels);
+        for ( int i = 0; i < nScaleLevels; i ++ )
+        {
+            vInvScaleFactors[i] = 1.0f/vScaleFactors[i];
+            vInvLevelSigma2[i]  = 1.0f/vLevelSigma2[i];
+        }
+
+        K = SS.K;
+
+        DistCoef = SS.DistCoef;
+
+        if( SS.DistCoef.at<float>(0)!=0.0)
+        {
+            cv::Mat mat(4,2,CV_32F);
+            mat.at<float>(0,0) = 0.0;
+            mat.at<float>(0,1) = 0.0;
+            mat.at<float>(1,0) = SS.width;
+            mat.at<float>(1,1) = 0.0;
+            mat.at<float>(2,0) = 0.0;
+            mat.at<float>(2,1) = SS.height;
+            mat.at<float>(3,0) = SS.width;
+            mat.at<float>(3,1) = SS.height;
+            
+            mat = mat.reshape(2);
+            cv::undistortPoints(mat, mat, SS.K, SS.DistCoef, cv::Mat(), SS.K);
+            mat = mat.reshape(1);
+
+            nMinX = min(mat.at<float>(0,0), mat.at<float>(2,0));
+            nMaxX = max(mat.at<float>(1,0), mat.at<float>(3,0));
+            nMinY = min(mat.at<float>(0,1), mat.at<float>(1,1));
+            nMaxY = max(mat.at<float>(2,1), mat.at<float>(3,1));
+        }
+        else
+        {
+            nMinX = 0.0f;
+            nMaxX = SS.width;
+            nMinY = 0.0f;
+            nMaxY = SS.height;
+        }
+
+        fGridElementWidthInv=static_cast<float>(FRAME_GRID_COLS)/(nMaxX-nMinX);
+        fGridElementHeightInv=static_cast<float>(FRAME_GRID_ROWS)/(nMaxY-nMinY);
+        
+    }
+
+    void InitKeyFrame::UndistortKeyPoints()
+    {
+        if( DistCoef.at<float>(0) == 0.0)
+        {
+            vKpsUn = vKps;
+            return;
+        }
+
+        cv::Mat mat(N,2,CV_32F);
+        for ( int i = 0; i < N; i ++ )
+        {
+            mat.at<float>(i,0) = vKps[i].pt.x;
+            mat.at<float>(i,1) = vKps[i].pt.y;
+        }
+
+        mat = mat.reshape(2);
+        cv::undistortPoints(mat, mat, K, DistCoef, cv::Mat(), K );
+        mat = mat.reshape(1);
+
+        vKpsUn.resize(N);
+        for( int i = 0; i < N; i ++ )
+        {
+            cv::KeyPoint kp = vKps[i];
+            kp.pt.x = mat.at<float>(i,0);
+            kp.pt.y = mat.at<float>(i,1);
+            vKpsUn[i] = kp;
+        }
+    }
+
+    void InitKeyFrame::AssignFeaturesToGrid()
+    {
+        int nReserve = 0.5f*N/(FRAME_GRID_COLS*FRAME_GRID_ROWS);
+        for ( unsigned int i = 0; i < FRAME_GRID_COLS; i ++ )
+        {
+            for ( unsigned int j = 0; j < FRAME_GRID_ROWS; j ++)
+                vGrid[i][j].reserve(nReserve);
+        }
+        
+        for ( int i = 0; i < N; i ++ )
+        {
+            const cv::KeyPoint& kp = vKpsUn[i];
+            int nGridPosX, nGridPosY;
+        if( PosInGrid(kp, nGridPosX, nGridPosY))
+            vGrid[nGridPosX][nGridPosY].push_back(i);
+        }
+    }
+
+    bool InitKeyFrame::PosInGrid(const cv::KeyPoint &kp, int &posX,  int &posY)
+    {
+        posX = round((kp.pt.x-nMinX)*fGridElementWidthInv);
+        posY = round((kp.pt.y-nMinY)*fGridElementHeightInv);
+
+        if(posX<0 || posX>=FRAME_GRID_COLS ||posY<0 || posY>=FRAME_GRID_ROWS)
+            return false;
+        return true;
+    }
 
     }
 
+    #####
 
-
-
-reference: https://medium.com/@mhamdaan/implementing-orb-slam-on-ubuntu-18-04-ros-melodic-606e668deffa
-
-#### skip #####
-6.download orb_slam2    
-    git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros.git
-
-7.create launch file name as orb_slam2_mono_new.launch
-    <launch>
-    <node name="orb_slam2_mono" pkg="orb_slam2_ros"
-        type="orb_slam2_ros_mono" output="screen">
-    <param name="publish_pointcloud" type="bool" value="true" />
-        <param name="publish_pose" type="bool" value="true" />
-        <param name="localize_only" type="bool" value="false" />
-        <param name="reset_map" type="bool" value="true" />
-    <!-- static parameters -->
-        <param name="load_map" type="bool" value="false" />
-        <param name="map_file" type="string" value="map.bin" />
-        <param name="voc_file" type="string" value="$(find orb_slam2_ros)/orb_slam2/Vocabulary/ORBvoc.txt" />
-    <param name="pointcloud_frame_id" type="string" value="map" />
-        <param name="camera_frame_id" type="string" value="camera_link" />
-        <param name="min_num_kf_in_map" type="int" value="5" />
-    <!-- ORB parameters -->
-        <param name="/ORBextractor/nFeatures" type="int" value="2000" />
-        <param name="/ORBextractor/scaleFactor" type="double" value="1.2" />
-        <param name="/ORBextractor/nLevels" type="int" value="8" />
-        <param name="/ORBextractor/iniThFAST" type="int" value="20" />
-        <param name="/ORBextractor/minThFAST" type="int" value="7" />
-    <!-- Camera parameters -->
-        <!-- Camera frames per second -->
-        <param name="camera_fps" type="int" value="30" />
-        <!-- Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale) -->
-        <param name="camera_rgb_encoding" type="bool" value="true" />
-            <!--If the node should wait for a camera_info topic to take the camera calibration data-->
-        <param name="load_calibration_from_cam" type="bool" value="true" />
-    </node>
-    </launch>
-
-8.create a node in "script" folder as camera.py
-    #!/usr/bin/env python
-    import rospy
-    import cv2
-    from cv_bridge import CvBridge
-    from sensor_msgs.msg import Image
-    bridge = CvBridge()
-    def callback(data):
-        frame = bridge.imgmsg_to_cv2(data, "bgr8")
-        cv2.imshow('Video Feed', frame)
-        cv2.waitKey(1)
-        rospy.loginfo('Image feed received!')
-    def listener():
-        rospy.init_node('vid_rec')
-        #first parameter is the topic you want to subcribe sensor_msgs/Image from
-        rospy.Subscriber('/orb_slam2_mono/debug_image', Image, callback)
-        rospy.spin()
-    if __name__ == '__main__':
-        listener()
-
-9.make your node excutable 
-    chmod +x camera.py
-
-10.excute each node and check
-    roslaunch usb_cam usb_cam-test.launch
-    roslaunch orb_slam2_ros orb_slam2_mono_new.launch
-    rosrun orb_slam2_ros camera.py 
-    rosrun rviz rviz
-
-11.change the "camera_link" in orb_slam2_mono_new.launch to "base_link"
-
-#### skip untill here #####
-
-
-
-
-
+4. add the reponse in ~/orbslam2/src/ORB_SLAM2
+    vim CMakeLists.txt
+    ## find add_library(${PROJECT_NAME} SHARED
+    ## and add following declare
+    src/SystemSetting.cc
+    src/InitKeyFrame.cc
