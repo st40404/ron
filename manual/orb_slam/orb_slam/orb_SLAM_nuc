@@ -1203,8 +1203,45 @@ reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
     } 
     #####
 
+5. declare LoadMap in system.h and system.cc
+    open file system.h from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/inlcude/system.h
+    add follow code in public
+    #####
+    void LoadMap(const string &filename,SystemSetting* mySystemSetting); 
+    #####
 
-5. add the dependency in ~/orbslam2/src/ORB_SLAM2
+    open file system.cc from ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/src/system.cc
+    add follow code
+    #####
+    void System::LoadMap(const string &filename,SystemSetting* mySystemSetting)  
+    {  
+       mpMap->Load(filename, mySystemSetting);   
+    }  
+    #####
+
+6. add following code in system.cc
+    put following code in constructive
+    ##### add comment code and uncomment
+
+    # char IsLoadMap;
+    # cerr << "Do you want to load the map?(Y/N)" << endl;  
+
+    # cin >> IsLoadMap;  
+    # SystemSetting *mySystemSetting = new SystemSetting(mpVocabulary);  
+    # mySystemSetting->LoadSystemSetting("/home/ron/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/Asus.yaml");  
+    # if(IsLoadMap == 'Y' || IsLoadMap == 'y'){  
+    #     mpMap->Load("/home/ron/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data/SaveMap.bin",mySystemSetting);  
+    # }  
+
+    ######
+
+    you need to copy SaveMap.bin from ~/.ros to ws/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+
+# add follow header in map.h
+# #include "KeyFrameDatabase.h" 
+
+
+6. add the dependency in ~/orbslam2/src/ORB_SLAM2
     vim CMakeLists.txt
     ## find add_library(${PROJECT_NAME} SHARED
     ## and add following declare
