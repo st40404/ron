@@ -1,4 +1,4 @@
-1.using camera_calibration and there is error no module name cv2,
+1. using camera_calibration and there is error no module name cv2,
   usb apt-get install python-opencv but install in python 2.7,
 
       pip3 install opencv-python
@@ -9,7 +9,7 @@
 
   and install opencv again(is will take some time)
 
-2.python 3 import getCvType error: from cv_bridge.boost.cv_bridge_boost import getCvType
+2. python 3 import getCvType error: from cv_bridge.boost.cv_bridge_boost import getCvType
   reference: https://stackoverflow.com/questions/49221565/unable-to-use-cv-bridge-with-ros-kinetic-and-python3?rq=1
   install cv_bridge
   python-catkin-tools` is needed for catkin tool
@@ -47,7 +47,7 @@
       unset PYTHONPATH
       echo $PYTHONPATH
 
-4.How to change default python version?
+4. How to change default python version?
     ## set priorty first
     sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
     sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 2
@@ -55,7 +55,7 @@
     sudo update-alternatives --config python
     and choose your priority
 
-5.when running orb_slam2_mono_new and get stuck in: Listening for camera info on topic /usb_ca/camera_info
+5. when running orb_slam2_mono_new and get stuck in: Listening for camera info on topic /usb_ca/camera_info
     go to orb_slam_2_ros/ros/src/MonoNode.cc 
     and change the camera/image_raw as usb_cam/image_raw
     and change the camera/image_info as usb_cam/image_info
@@ -65,7 +65,7 @@
 
    reason: because calibration table was broken
    
-7.Resource not found: rgbd_launch 
+7. Resource not found: rgbd_launch 
     ROS path [0]=/opt/ros/melodic/share/ros 
     ROS path [1]=/home/iclab/orb_slam2_ws/src 
     ROS path [2]=/opt/ros/melodic/share 
@@ -73,3 +73,20 @@
 
 sudo apt-get install ros-melodic-rgbd-launch 
     
+8. when executing rs_rgbd.launch in ORBSLAM2, and get following error 
+    E: virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+    S: change the setting of ~/orbslam2/src/ORB_SLAM2/Examples/RGB-D/TUM3.yaml
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+./Examples/RGB-D/rgbd_tum Vocabulary/ORBvoc.txt Examples/RGB-D/TUM3.yaml ./Examples/RGB-D/ ./Examples/RGB-D/associations.txt

@@ -1,0 +1,4 @@
+1. get get-pip.py 
+	curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+2. install pip
+	python get-pip.py
