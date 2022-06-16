@@ -93,6 +93,10 @@ chmod +x build.sh
 
 #### fix CMakeFiles/ORB_SLAM2.dir/src/Viewer.cc.o] Error 1
 source: https://titanwolf.org/Network/Articles/Article?AID=7b222385-061f-4185-9e2f-05df89eef210#gsc.tab=0
+#### plan A ####
+#### add #include <unistd.h> " in System.h header
+
+#### plan B ####
 #### the following file need to add  " #include <unistd.h> "
 
 Examples/Monocular/mono_euroc.cc
@@ -202,7 +206,8 @@ to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
 
 
 ##############################################
-######### orb_slam2（realsense） #############
+######### orb_slam2（realsense） ##############
+#########     GITHUB:raulmur    ##############
 ##############################################
 
 1. install SDK2 (following manual step(/manual/orb_slam/realsense/driver))
@@ -211,6 +216,8 @@ to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
 
 3. clone the realsense pkg
     git clone https://github.com/intel-ros/realsense.git
+    git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+
 
 4. realsense calibration:
     realsense-viewer
@@ -229,7 +236,7 @@ to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
 roslaunch realsense2_camera rs_rgbd.launch 
 rosrun ORB_SLAM2 RGBD src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/RGB-D/TUM1.yaml
 
-7. create a launch name orbslam2_rgbd.launch in ws/all_process/launch
+7. create a launch name orbslam2_rgbd.launch in ws/src/all_process/launch
 and paste the following code
 
 <launch>
@@ -1313,3 +1320,158 @@ reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
     ## and add following declare
     src/SystemSetting.cc
     src/InitKeyFrame.cc
+
+
+
+
+
+
+
+
+
+##############################################
+######### orb_slam2（realsense） ##############
+#########     GITHUB: MathewDenny   ##########
+##############################################
+
+
+1. install SDK2 (following manual step(/manual/orb_slam/realsense/driver))
+
+2. go to your workspace/src 
+
+3. clone the realsense pkg
+    git clone https://github.com/intel-ros/realsense.git
+    git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+
+4. realsense calibration:
+    realsense-viewer
+    click: Stereo Module->Emitter Enabled Laser
+    click: More->On-Chip Calibration
+
+
+5. add following code in realsense/realsense2_camera/launch/rs_rgbd.launch in line 118(under group ns="$(arg camera)">)
+
+  <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/depth_registered/image_raw" />
+  <remap from="/camera/color/image_raw"                  to="/camera/rgb/image_raw" />
+
+6. clone pkg from git
+    cd workspace/src 
+    git clone https://github.com/MathewDenny/ORB_SLAM2.git
+
+
+7. create a launch name orbslam2_rgbd.launch in ws/src/all_process/launch
+and paste the following code
+
+<launch>
+
+  <!-- open launch: realsense driver -->
+  <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">  </include>
+
+
+  <arg
+    name="path_to_vocabulary"
+    default="$(find ORB_SLAM2)/data/ORBvoc.txt"
+  />
+
+  <arg
+    name="path_to_settings"
+    default="$(find ORB_SLAM2)/data/TUM3.yaml"
+  />
+
+  <!-- open node: orb_slam -->
+  <node pkg="ORB_SLAM2"
+        name="RGBD" 
+        type="RGBD"
+        args= "$(arg path_to_vocabulary) $(arg path_to_settings)" />
+
+</launch>
+
+8. put  src/ORB_SLAM2/Vocabulary/ORBvoc.txt
+    and  src/ORB_SLAM2/Examples/RGB-D/TUM3.yaml
+    to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+
+9. set your camera calibration setting in TUM3.yaml
+    ## source1: https://github.com/Taeyoung96/Make-ORB-SLAM2-RGBD-dataset
+    ## source2: https://www.jianshu.com/p/ad040b374b2f
+    ## clone pkg from github
+        cd ~/orbslam2/src
+        git clone https://github.com/Taeyoung96/Make-ORB-SLAM2-RGBD-dataset.git
+
+
+    ## remove rgb, depths folder, and make rgb and depth folder
+        cd Make-ORB-SLAM2-RGBD-dataset
+        rm -rf rgb depth 
+        mkdir rgb depth
+
+    ## delete the original rgb and depth file
+        rm rgb.txt depth.txt 
+
+    ## install pyrealsense2
+        pip install pyrealsense2
+
+    ## execute rs-get-Sequence.py to get data and png, and put into rgb and depth folder
+    ## press s to start, and ctrl+c to terminate
+        python rs-get-Sequence.py 
+    ## and you can get image in rgb and depth folder, rgb.txt and depth.txt
+
+    ## combine rgb.txt and depth.txt by associate.py
+        python associate.py --rgb_path rgb.txt --depth_path depth.txt --output associations.txt
+    ## put rgb folder, depth folder, and associations.txt to ./Examples/ROS/ORB_SLAM2/data
+
+    ## set TUM3.yaml data
+        cd ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+
+        ## open realsense and get info
+        roslaunch realsense2_camera rs_rgbd.launch 
+        rostopic echo /camera/color/camera_info
+
+        ## you can get in following param from camera_info
+        ## K:[x1, x2, x3, y1, y2, y3, z1, z2, z3]
+            Camera.fx : x1
+            Camera.fy : y2 
+            Camera.cx : x3
+            Camera.cy : y3
+
+        Camera.k1: 0.0
+        Camera.k2: 0.0
+        Camera.p1: 0.0
+        Camera.p2: 0.0
+
+        Camera.width: 1280
+        Camera.height: 720
+
+        ## get the other data from realsense webside
+            # Camera frames per second 
+            Camera.fps: 30.0
+
+            # IR projector baseline times fx (aprox.)
+            Camera.bf: 46.1
+
+            # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+            Camera.RGB: 1
+
+            # Close/Far threshold. Baseline times.
+            ThDepth: 40.0
+
+            # Deptmap values factor
+            DepthMapFactor: 1000.0
+
+10. try to run realsense and orb_slam: 
+## you sould build ./build_ros.sh in upper manual in  "install orb_slam2" part of 14 and 15 before runing orb_slam
+
+    roslaunch realsense2_camera rs_rgbd.launch 
+    rosrun ORB_SLAM2 RGBD Examples/ROS/ORB_SLAM2/data/ORBvoc.txt Examples/ROS/ORB_SLAM2/data/TUM3.yaml
+
+11. change the reading path of setting file
+    cd ~/map/src/ORB_SLAM2/src
+    vim system.cc
+    ## change the default path from (line 164)
+    string strPathSystemSetting = cwd + "/" + strSettingsFile.c_str();
+    ## to 
+    string strPathSystemSetting = strSettingsFile.c_str();
+
+12. execute orbslam2_rgbd.launch
+    roslaunch all_process orbslam2_rgbd.launch 
+
+
+
