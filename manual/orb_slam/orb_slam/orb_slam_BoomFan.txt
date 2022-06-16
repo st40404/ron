@@ -1,0 +1,189 @@
+## source: https://blog.csdn.net/qq_34254510/article/details/79969046
+
+##############################################
+######### orb_slam2（realsense） ##############
+#########     GITHUB: BoomFan   ##############
+##############################################
+
+1. make your work space
+    mkdir -p orb_slam2/src
+    cd orb_slam2/src
+    git clone https://github.com/BoomFan/ORB_SLAM2.git
+
+2. open System.h and add " #include <unistd.h> " in  header
+3. open system.cc 
+    ## replace all "cout" as "cerr"
+
+    ## replace following code in line 152
+    ## from
+    string strPathSystemSetting = cwd + "/" + strSettingsFile.c_str();
+    ## to
+    string strPathSystemSetting = strSettingsFile.c_str();
+
+4. install realsense2_camera
+    ## install SDK2 (following manual step(/manual/orb_slam/realsense/driver))
+
+    ## clone the realsense pkg to ~/orb_slam2/src
+        git clone https://github.com/intel-ros/realsense.git
+        git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+    
+    ## realsense calibration:
+        realsense-viewer
+        click: Stereo Module->Emitter Enabled Laser
+        click: More->On-Chip Calibration
+    
+    
+5. add following code in realsense/realsense2_camera/launch/rs_rgbd.launch in line 118(under group ns="$(arg camera)">)
+    <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/depth_registered/image_raw" />
+    <remap from="/camera/color/image_raw"                  to="/camera/rgb/image_raw" />
+
+6. create a package name all_process and a launch name orbslam2_rgbd.launch in ws/src/all_process/launch
+    ##and paste the following code
+
+<launch>
+
+    <!-- open launch: realsense driver -->
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">  </include>
+
+
+    <arg
+    name="path_to_vocabulary"
+    default="$(find ORB_SLAM2)/data/ORBvoc.txt"
+    />
+
+    <arg
+    name="path_to_settings"
+    default="$(find ORB_SLAM2)/data/TUM3.yaml"
+    />
+
+    <!-- open node: orb_slam -->
+    <node pkg="ORB_SLAM2"
+        name="RGBD" 
+        type="RGBD"
+        args= "$(arg path_to_vocabulary) $(arg path_to_settings)" />
+
+</launch>
+
+8. put  src/ORB_SLAM2/Vocabulary/ORBvoc.txt to  src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data/
+9. set your camera calibration setting associations.txt, TUM3.yaml and two folder => dapth, rgb
+   ## and put them to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data/
+
+    ## source1: https://github.com/Taeyoung96/Make-ORB-SLAM2-RGBD-dataset
+    ## source2: https://www.jianshu.com/p/ad040b374b2f
+    ## clone pkg from github
+        cd ~/orb_slam2/src
+        git clone https://github.com/Taeyoung96/Make-ORB-SLAM2-RGBD-dataset.git
+
+
+    ## remove rgb, depths folder, and make rgb and depth folder
+        cd Make-ORB-SLAM2-RGBD-dataset
+        rm -rf rgb depths 
+        mkdir rgb depth
+
+    ## delete the original rgb and depth file
+        rm rgb.txt depth.txt 
+
+    ## install pyrealsense2
+        pip install pyrealsense2
+
+    ## execute rs-get-Sequence.py to get data and png, and put into rgb and depth folder
+    ## press s to start, and ctrl+c to terminate
+        python rs-get-Sequence.py 
+    ## and you can get image in rgb and depth folder, rgb.txt and depth.txt
+
+    ## delete all korean word in associate.py
+        vim associate.py
+        ## delete all korean word
+
+    ## combine rgb.txt and depth.txt by associate.py
+        python associate.py --rgb_path rgb.txt --depth_path depth.txt --output associations.txt
+    ## put rgb folder, depth folder, and associations.txt to ./Examples/ROS/ORB_SLAM2/data
+
+    ## copy TUM3.yaml from /ORB_SLAM2/Examples/RGB-D to ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+    ## and set your TUM3.yaml data
+        cd ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+
+        ## open realsense and get info
+        roslaunch realsense2_camera rs_rgbd.launch 
+        rostopic echo /camera/color/camera_info
+
+        ## you can get in following param from camera_info
+        ## K:[x1, x2, x3, y1, y2, y3, z1, z2, z3]
+            Camera.fx : x1
+            Camera.fy : y2 
+            Camera.cx : x3
+            Camera.cy : y3
+
+        Camera.k1: 0.0
+        Camera.k2: 0.0
+        Camera.p1: 0.0
+        Camera.p2: 0.0
+
+        Camera.width: 1280
+        Camera.height: 720
+
+        ## get the other data from realsense webside
+            # Camera frames per second 
+            Camera.fps: 30.0
+
+            # IR projector baseline times fx (aprox.)
+            Camera.bf: 46.1
+
+            # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+            Camera.RGB: 1
+
+            # Close/Far threshold. Baseline times.
+            ThDepth: 40.0
+
+            # Deptmap values factor
+            DepthMapFactor: 1000.0
+        #--------------------------------------------------------------------------------------------
+        # ORB Parameters
+        #--------------------------------------------------------------------------------------------
+
+        # ORB Extractor: Number of features per image
+        ORBextractor.nFeatures: 500
+
+        # ORB Extractor: Scale factor between levels in the scale pyramid 	
+        ORBextractor.scaleFactor: 1.2
+
+        # ORB Extractor: Number of levels in the scale pyramid	
+        ORBextractor.nLevels: 8
+
+        # ORB Extractor: Fast threshold
+        # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+        # Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+        # You can lower these values if your images have low contrast			
+        ORBextractor.iniThFAST: 20
+        ORBextractor.minThFAST: 7
+
+        #--------------------------------------------------------------------------------------------
+        # Viewer Parameters
+        #--------------------------------------------------------------------------------------------
+        Viewer.KeyFrameSize: 0.05
+        Viewer.KeyFrameLineWidth: 1
+        Viewer.GraphLineWidth: 0.9
+        Viewer.PointSize:2
+        Viewer.CameraSize: 0.08
+        Viewer.CameraLineWidth: 3
+        Viewer.ViewpointX: 0
+        Viewer.ViewpointY: -0.7
+        Viewer.ViewpointZ: -1.8
+        Viewer.ViewpointF: 500
+
+10. open ros_rgbd.cc in ORB_SLAM2/Examples/ROS/ORB_SLAM2/src
+    ## replace following code in line 79
+    ## from
+        // Save camera trajectory
+        SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+    
+    ## to
+        // Save camera trajectory
+        SLAM.SaveTrajectoryTUM("CameraTrajectory.txt");
+        SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");  
+    
+        // Save customized Map 
+        SLAM.SaveMap("MapPointandKeyFrame.bin");
+
+11. execute orbslam2_rgbd.launch
+    roslaunch all_process orbslam2_rgbd.launch 

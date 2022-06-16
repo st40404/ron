@@ -1333,8 +1333,6 @@ reference_3 from: https://blog.csdn.net/KYJL888/article/details/86743129
 ######### orb_slam2（realsense） ##############
 #########     GITHUB: MathewDenny   ##########
 ##############################################
-
-
 1. install SDK2 (following manual step(/manual/orb_slam/realsense/driver))
 
 2. go to your workspace/src 
