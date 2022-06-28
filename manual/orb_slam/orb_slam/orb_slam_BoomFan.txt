@@ -9,7 +9,9 @@
     mkdir -p orb_slam2/src
     cd orb_slam2/src
     git clone https://github.com/BoomFan/ORB_SLAM2.git
-
+    cd ORB_SLAM2
+    ./build.sh
+    ./build_ros.sh
 2. open System.h and add " #include <unistd.h> " in  header
 3. open system.cc 
     ## replace all "cout" as "cerr"
@@ -81,7 +83,7 @@
         mkdir rgb depth
 
     ## delete the original rgb and depth file
-        rm rgb.txt depth.txt 
+        rm rgb.txt depth.txt associations.txt
 
     ## install pyrealsense2
         pip install pyrealsense2
@@ -100,8 +102,10 @@
     ## put rgb folder, depth folder, and associations.txt to ./Examples/ROS/ORB_SLAM2/data
 
     ## copy TUM3.yaml from /ORB_SLAM2/Examples/RGB-D to ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+    
     ## and set your TUM3.yaml data
-        cd ~/orbslam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+        cd ~/orb_slam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+        cp ../../../RGB-D/TUM3.yaml ./TUM3.yaml
 
         ## open realsense and get info
         roslaunch realsense2_camera rs_rgbd.launch 
@@ -187,3 +191,94 @@
 
 11. execute orbslam2_rgbd.launch
     roslaunch all_process orbslam2_rgbd.launch 
+
+
+
+
+##############################################
+######### orb_slam2（realsense） ##############
+####  publish keyframe point cloud topic  ####
+##############################################
+
+1. make a topic to publish point cloud
+    ## A. open ros_rgbd.cc and add pcl publish header
+
+    #include <pcl_ros/point_cloud.h>
+    #include <pcl/point_types.h>
+    #include <pcl_conversions/pcl_conversions.h>
+
+    typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+
+
+    ## B. add follow define in public of ImageGrabber class
+
+    // define Pointcloud topic
+    ros::Publisher MapPoint_pub;
+    
+    // define CurrentFrame to get 2D(x,y) data from tracker
+    vector<cv::KeyPoint> CurrentFrame;
+
+    // define CurrentDepth to get depth(z) from tracker
+    vector<float> CurrentDepth;
+
+    // add callback function to get current frame from Tracker, and publish
+    void callback();
+
+
+    ## C. add topic define in main function
+
+    //define /Ron/MapPoint topic
+    igb.MapPoint_pub = nh.advertise<PointCloud>("/Ron/KeyFrame", 1);
+
+
+    ## D. add new callback function to get data from Tracker
+
+    // get current data from tracker, and publish
+    void ImageGrabber::callback()
+    {
+        CurrentFrame = mpSLAM->GetmpTracker();
+        CurrentDepth = mpSLAM->GetmvDepth();
+
+        pcl::PointCloud<pcl::PointXYZ> cloud;
+        cloud.header.frame_id = "camera_aligned_depth_to_color_frame";
+        cloud.points.resize (CurrentFrame.size());
+        for (size_t i=0; i<CurrentFrame.size(); i++)
+        {
+            cloud.points[i].x = CurrentFrame[i].pt.x / 100.0;
+            cloud.points[i].y = CurrentFrame[i].pt.y / 100.0 ;
+            cloud.points[i].z = CurrentDepth[i];
+        }
+
+        MapPoint_pub.publish(cloud);
+    }
+
+
+    ## E. call callback function in ImageGrabber::GrabRGBD function
+
+    callback();
+
+
+2. add some function to get data from other class
+    ## open System.h to add new function
+
+    ## add following define of function in public of System class
+
+    // get mCurrentFrame data
+    vector<cv::KeyPoint> GetmpTracker();
+    vector<float> GetmvDepth();
+
+
+3. add these function to return 2D keyframe point cloud and depth data
+
+    vector<cv::KeyPoint> System::GetmpTracker()
+    {
+        unique_lock<mutex> lock(mMutexState);
+        return mpTracker->mCurrentFrame.mvKeys;
+    }
+
+
+    vector<float> System::GetmvDepth()
+    {
+        unique_lock<mutex> lock(mMutexState);
+        return mpTracker->mCurrentFrame.mvDepth;
+    }
