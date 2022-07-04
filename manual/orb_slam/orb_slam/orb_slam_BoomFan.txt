@@ -213,7 +213,7 @@
     ## B. add follow define in public of ImageGrabber class
 
     // define Pointcloud topic
-    ros::Publisher MapPoint_pub;
+    ros::Publisher KeyFrame_pub;
     
     // define CurrentFrame to get 2D(x,y) data from tracker
     vector<cv::KeyPoint> CurrentFrame;
@@ -224,21 +224,27 @@
     // add callback function to get current frame from Tracker, and publish
     void callback();
 
+    // add PublishPointcloud function to publish point cloud
+    void PublishPointcloud();
 
     ## C. add topic define in main function
 
-    //define /Ron/MapPoint topic
-    igb.MapPoint_pub = nh.advertise<PointCloud>("/Ron/KeyFrame", 1);
+    //define /Ron/KeyFrame topic
+    igb.KeyFrame_pub = nh.advertise<PointCloud>("/Ron/KeyFrame", 1);
 
 
     ## D. add new callback function to get data from Tracker
-
-    // get current data from tracker, and publish
+    // get current data from tracker
     void ImageGrabber::callback()
     {
         CurrentFrame = mpSLAM->GetmpTracker();
         CurrentDepth = mpSLAM->GetmvDepth();
+    }
 
+    ## E. add new PublishPointcloud function to publish point cloud
+    // publish point clouds
+    void ImageGrabber::PublishPointcloud()
+    {
         pcl::PointCloud<pcl::PointXYZ> cloud;
         cloud.header.frame_id = "camera_aligned_depth_to_color_frame";
         cloud.points.resize (CurrentFrame.size());
@@ -248,14 +254,16 @@
             cloud.points[i].y = CurrentFrame[i].pt.y / 100.0 ;
             cloud.points[i].z = CurrentDepth[i];
         }
-
-        MapPoint_pub.publish(cloud);
+    
+        KeyFrame_pub.publish(cloud);
     }
 
 
-    ## E. call callback function in ImageGrabber::GrabRGBD function
-
+    ## F. call callback and PublishPointcloud function in ImageGrabber::GrabRGBD function
+    // get current data from tracker and keyframe
     callback();
+    // publish point cloud and camera pose
+    PublishPointcloud();
 
 
 2. add some function to get data from other class
@@ -281,4 +289,98 @@
     {
         unique_lock<mutex> lock(mMutexState);
         return mpTracker->mCurrentFrame.mvDepth;
+    }
+
+
+##############################################
+######### orb_slam2（realsense） ##############
+######  publish camera pose topic  ###########
+##############################################
+
+1. make a topic to publish camera pose
+    ## A. open ros_rgbd.cc and add camera pose publish header
+
+    // add Camera pose publish type header
+    #include "std_msgs/MultiArrayDimension.h"
+    #include "std_msgs/Float64MultiArray.h"
+    
+    using namespace std;
+
+
+    ## B. add follow define in public of ImageGrabber class
+
+    // define camera Pose topic
+    ros::Publisher CamPose_pub;
+    
+    // define pose to get save camera pose
+    std_msgs::Float64MultiArray pose;
+
+    // set pose varity setting
+    void SetPose();
+
+    // add PublishPose function to publish camera pose
+    void PublishCamPose();
+
+    ## C. add topic define and setting in main function
+
+    // define /Ron/CamPose topic
+    igb.CamPose_pub = nh.advertise<std_msgs::Float64MultiArray>("/Ron/CamPose", 1);
+
+    // set publish message of member pose
+    igb.SetPose();
+
+
+    ## D. add new define in ImageGrabber::callback function to get camera pose
+    CurrentPose = mpSLAM->Getpose();
+
+    ## E. add new PublishCamPose function to publish camera pose
+    // publish camera pose
+    void ImageGrabber::PublishCamPose()
+    {
+        std::vector<double> vec(CurrentPose.cols*CurrentPose.rows, 0);
+        float* matData = (float*)CurrentPose.data;
+
+        for (int i=0; i<CurrentPose.rows; i++)
+            for (int j=0; j<CurrentPose.cols; j++)
+                vec[i*CurrentPose.cols + j] = matData[i*CurrentPose.cols + j];
+
+        pose.data = vec;
+        CamPose_pub.publish(pose);
+    }
+
+    ## F. add new SetPose function to set publish message
+    // set publish message of member pose
+    void ImageGrabber::SetPose()
+    {
+        // fill out message:
+        pose.layout.dim.push_back(std_msgs::MultiArrayDimension());
+        pose.layout.dim.push_back(std_msgs::MultiArrayDimension());
+        pose.layout.dim[0].label = "height";
+        pose.layout.dim[1].label = "width";
+        pose.layout.dim[0].size = 4;
+        pose.layout.dim[1].size = 4;
+        pose.layout.dim[0].stride = 16;
+        pose.layout.dim[1].stride = 4;
+        pose.layout.data_offset = 0;
+    }
+
+    ## G. PublishCamPose function in ImageGrabber::GrabRGBD function
+    PublishCamPose();
+
+
+2. add some function to get data from other class
+    ## open System.h to add new function
+
+    ## add following define of function in public of System class
+
+    // get mCurrentFrame data
+    cv::Mat Getpose();
+
+
+3. add these function to return camera pose
+
+    cv::Mat System::Getpose()
+    {
+        unique_lock<mutex> lock(mMutexState);
+        return mpTracker->mCurrentFrame.mpReferenceKF->GetPose();
     }
