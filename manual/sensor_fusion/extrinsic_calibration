@@ -43,10 +43,11 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
 
         ## go to LaserCameraCal_ws
         roslaunch realsense2_camera rs_camera.launch
+<!-- 
         rosrun topic_tools throttle messages /camera/color/image_raw 4.0 /color
-
+ -->
         ## open rosbag to save this topic
-        rosbag record -O camd435i /color
+        rosbag record -O camd435i /camera/color/image_raw /scan
 
         ## put your apriltag in front of your camera and move it 
         ## after trying lots of position and gesture, Ctri+c to close this bag and save
@@ -96,10 +97,10 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
     ## change the img_topic_name from rostopic list
         img_topic_name: "/camera/color/image_raw"
     ## set your tag info
-        tag_type: 2       # 1: kalibr_tag, 2: apriltag
+        tag_type: 1       # 1: kalibr_tag, 2: apriltag
         tag_size: 0.025   # tag size, unit meter
         tag_spacing: 0.32 # tag spacing, only used in kalibr_tag. For details, please see kalibr tag description. 
-        black_border: 1   # kalibr_tag black_boarder = 2, apriltag black_boarder = 1
+        black_border: 2   # kalibr_tag black_boarder = 2, apriltag black_boarder = 1
     ## set camera calibration 
         ## if you use realsense 435i
             model_type: PINHOLE
@@ -115,7 +116,7 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
     #####  method 1 #####
         ## record rosbag and use kalibr_calibrate_cameras make camd435i-camchain.yaml
 
-        rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
+        rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /camera/color/image_raw --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
 
         ## get intrinsics from camd435i-camchain.yaml
         ## intrinsics: [fx, fy, cx, cy]    ## (fu, fv, pu, pv)
@@ -143,10 +144,10 @@ scan_topic_name: "/scan"
 img_topic_name: "/camera/color/image_raw"
 
 # tag info
-tag_type: 2 # 1: kalibr_tag, 2: apriltag
+tag_type: 1 # 1: kalibr_tag, 2: apriltag
 tag_size: 0.025 # tag size, unit meter
 tag_spacing: 0.32 # tag spacing, only used in kalibr_tag. For details, please see kalibr tag description.
-black_border: 1 # if you use kalibr_tag black_boarder = 2; if you use apriltag black_boarder = 1
+black_border: 2 # if you use kalibr_tag black_boarder = 2; if you use apriltag black_boarder = 1
  
 #camera calibration 
 model_type: PINHOLE
@@ -176,7 +177,7 @@ projection_parameters:
 
     catkin_make -DCMAKE_BUILD_TYPE=Release
     
-## forever give the permission for this device
+## give the permission for this device forever
   ## make the rules
   cd /etc/udev/rules.d
   sudo vim 99-hokuyo.rules
@@ -185,8 +186,14 @@ projection_parameters:
   ## check the permission of your device
   ls -l /dev/sensors/hokuyo
 
-
-
-
-## test 
+## use kalibra_apriltag to read camd435i.bag and save the twc, qwc, orientation in log folder
+## it doesn't need to open any moniter
     roslaunch lasercamcal_ros kalibra_apriltag.launch
+
+## use calibra_offline to read camd435i.bag and save the extrinsicTlc(orientation matrix) in log folder
+    roslaunch lasercamcal_ros calibra_offline.launch
+
+## and open the moniter and check the transform is correct
+    roslaunch realsense2_camera rs_rgbd.launch
+    roslaunch urg_node urg_lidar.launch
+    roslaunch lasercamcal_ros debug.launch 

@@ -1,4 +1,4 @@
-1.catkin realsense pkg:  Could not find a package configuration file provided by
+1. catkin realsense pkg:  Could not find a package configuration file provided by
     "ddynamic_reconfigure" with any of the following names: 
     ddynamic_reconfigureConfig.cmake
     ddynamic_reconfigure-config.cmake
@@ -11,7 +11,7 @@
 
 
 
-2.Err:XX http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic InRelease 403  Forbidden [IP: 52.218.36.57 80]
+2. Err:XX http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic InRelease 403  Forbidden [IP: 52.218.36.57 80]
     E: Failed to fetch http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo/dists/bionic/InRelease  403  Forbidden [IP: 52.218.36.57 80]
     E: The repository 'http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic InRelease' is no longer signed.
 
@@ -20,7 +20,7 @@ source: https://forum.hello-robot.com/t/expired-ros-gpg-key-new-realsense-apt-re
 sudo add-apt-repository --remove "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u
 sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo bionic main" -u
 
-3.when catkin the ws, there is following error, just install ddynamic-reconfigure
+3. when catkin the ws, there is following error, just install ddynamic-reconfigure
 CMake Error at /opt/ros/kinetic/share/catkin/cmake/catkinConfig.cmake:83 (find_package):
   Could not find a package configuration file provided by
   "ddynamic_reconfigure" with any of the following names:
@@ -30,4 +30,8 @@ CMake Error at /opt/ros/kinetic/share/catkin/cmake/catkinConfig.cmake:83 (find_p
 
 sudo apt-get install ros-melodic-ddynamic-reconfigure
 
+4. when running rs_rgbd.launch
+    E: Resource not found: rgbd_launch
+    S: install rgbd-launch
+    sudo apt-get install ros-melodic-rgbd-launch
 
