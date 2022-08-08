@@ -1,0 +1,107 @@
+1. make a new workspace for sensorfusion
+    mkdir SensorFusion/src
+    cd SensorFusion
+    catkin_make
+    . devel/setup.bash
+
+2. make new pkg 
+    catkin_create_pkg fusion
+    cd fusion/
+    mkdir launch config src
+
+3. put realsense and urg_node pkg
+    cd ~/SensorFusion/src
+    git clone https://github.com/ros-drivers/urg_node.git
+    git clone https://github.com/intel-ros/realsense.git
+    git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+
+4. set your launch file
+    cd launch/
+    vim 3Dpoints.launch
+    ## paste following code in 3Dpoints.launch
+
+<launch>
+  <!-- open launch: realsense driver -->
+  <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">  </include>
+
+  <!-- open launch: lidar driver -->
+  <include file="$(find urg_node)/launch/urg_lidar.launch">  </include>
+
+  <arg name="config_path" default = "$(find fusion)/config/calibra_config.yaml" />
+
+  <node pkg="fusion" type="showcloud_node" name="showcloud_node" output="screen">
+    <param name="config_file" type="string" value="$(arg config_path)" />
+  </node>
+</launch>
+
+5. put extrinsic calibra_config.yaml and log to your folder
+    cp -R ~/LaserCameraCal_ws/src/bagfiles/log/ ~/SensorFusion/src/fusion/config/
+    cp -R ~/LaserCameraCal_ws/src/CamLaserCalibraTool/config/calibra_config.yaml ~/SensorFusion/src/fusion/config/
+
+6. put showcloud_node.cpp in fusion/src
+7. set dependencies of showcloud_node.cpp
+   # open fusion/src/CMakeLists.txt and add follow dependencies
+    find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    rosbag
+    sensor_msgs
+    geometry_msgs
+    tf
+    cv_bridge
+    message_generation
+    nodelet
+    std_msgs
+    cmake_modules
+    )
+
+    find_package(Eigen REQUIRED)
+    find_package(OpenCV REQUIRED)
+    find_package(Ceres REQUIRED)
+
+    generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+    )
+
+
+    include_directories(
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    )
+
+    add_executable(showcloud_node src/showcloud_node.cpp)
+    add_dependencies(showcloud_node ${catkin_EXPORTED_TARGETS})
+    target_link_libraries(showcloud_node
+    ${catkin_LIBRARIES}
+    )
+
+
+   # open fusion/src/package.xml and add follow dependencies
+    <build_depend>image_transport</build_depend>
+    <build_depend>roscpp</build_depend>
+    <build_depend>rosbag</build_depend>
+    <build_depend>sensor_msgs</build_depend>
+    <build_depend>geometry_msgs</build_depend>
+    <build_depend>tf</build_depend>
+    <build_depend>cv_bridge</build_depend>
+    <build_depend>message_generation</build_depend>
+    <build_depend>nodelet</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>cmake_modules</build_depend>
+    <run_depend>image_transport</run_depend>
+    <run_depend>roscpp</run_depend>
+    <run_depend>rosbag</run_depend>
+    <run_depend>sensor_msgs</run_depend>
+    <run_depend>geometry_msgs</run_depend>
+    <run_depend>tf</run_depend>
+    <run_depend>cv_bridge</run_depend>
+    <run_depend>message_runtime</run_depend>
+    <run_depend>nodelet</run_depend>
+    <run_depend>std_msgs</run_depend>
+
+
+8. test your launch file
+    roslaunch fusion 3Dpoints.launch 
