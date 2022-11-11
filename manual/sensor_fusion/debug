@@ -213,3 +213,28 @@
       sudo python -m pip install --upgrade --force pip 
       sudo pip install setuptools==33.1.1
       
+20.  when include #include <pcl_ros/point_cloud.h>
+      P : fatal error: pcl/point_cloud.h: No such file or directory
+      S : install pcl
+      sudo apt-get install libpcl-dev 
+
+      ## open CMakeLists.txt and add following dependends
+
+      find_package(
+            pcl_ros
+            pcl_conversions
+      )
+
+      catkin_package(
+      CATKIN_DEPENDS roscpp
+                   pcl_conversions
+                   pcl_ros
+      )
+
+      ## open package.xml and add following dependends
+      <build_depend>libpcl-all-dev</build_depend>
+      <build_depend>pcl_ros</build_depend>
+      <build_depend>pcl_conversions</build_depend>
+      <exec_depend>libpcl-all</exec_depend>
+      <exec_depend>pcl_conversions</exec_depend>
+      <exec_depend>pcl_ros</exec_depend>

@@ -84,6 +84,8 @@ git clone https://github.com/MegviiRobot/CamLaserCalibraTool
 
         rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /color --bag ~/LaserCameraCal_ws/src/bagfiles/camd435i.bag --target ~/LaserCameraCal_ws/src/bagfiles/aprilgrid.yaml
 
+        rosrun kalibr kalibr_calibrate_cameras --models pinhole-radtan --topics /camera/color/image_raw --bag ~/SensorFusion/src/fusion/config/camd435i.bag --target ~/SensorFusion/src/fusion/config/aprilgrid.yaml
+        
         ## get intrinsics from camd435i-camchain.yaml
 
 
@@ -194,6 +196,4 @@ projection_parameters:
     roslaunch lasercamcal_ros calibra_offline.launch
 
 ## and open the moniter and check the transform is correct
-    roslaunch realsense2_camera rs_rgbd.launch
-    roslaunch urg_node urg_lidar.launch
     roslaunch lasercamcal_ros debug.launch 

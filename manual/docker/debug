@@ -1,0 +1,14 @@
+1. when install nvidia-docker2 and have following error
+E: Unable to locate package nvidia-docker2
+
+S:      curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \ sudo apt-key add -
+	distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+	curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+	sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+	sudo apt-get update
+
+
+2. When you use docker command, and you got permission error
+E:Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json": dial unix /var/run/docker.sock: connect: permission denied
+
+S: sudo chmod 666 /var/run/docker.sock
