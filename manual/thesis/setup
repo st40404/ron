@@ -1,0 +1,10 @@
+# turtlebot3
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+	git clone https://github.com/ROBOTIS-GIT/turtlebot3.git
+    git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+# gmapping
+    git clone https://github.com/ros-perception/slam_gmapping.git
+# gmapping dependency
+    git clone https://github.com/ros-perception/openslam_gmapping
+# lidar driver
+    git clone https://github.com/ros-drivers/urg_node.git

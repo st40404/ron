@@ -16,12 +16,12 @@ ENV NVIDIA_DRIVER_CAPABILITIES all
 
 ## Setup users and groups
 RUN groupadd --gid ${GID} ${GROUP} \
-  && useradd --gid ${GID} --uid ${UID} -ms ${SHELL} ${USER} \
-  && mkdir -p /etc/sudoers.d \
-  && echo "${USER}:x:${UID}:${UID}:${USER},,,:$HOME:${shell}" >> /etc/passwd \
-  && echo "${USER}:x:${UID}:" >> /etc/group \
-  && echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" \
-  && chmod 0440 "/etc/sudoers.d/${USER}"
+    && useradd --gid ${GID} --uid ${UID} -ms ${SHELL} ${USER} \
+    && mkdir -p /etc/sudoers.d \
+    && echo "${USER}:x:${UID}:${UID}:${USER},,,:$HOME:${shell}" >> /etc/passwd \
+    && echo "${USER}:x:${UID}:" >> /etc/group \
+    && echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" \
+    && chmod 0440 "/etc/sudoers.d/${USER}"
 
 ## Replace apt urls
 # Taiwan
@@ -32,24 +32,24 @@ RUN sed -i 's@archive.ubuntu.com@ftp.tku.edu.tw/@g' /etc/apt/sources.list
 ############################### INSTALL & SETUP ###############################
 ## Install packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  sudo htop git wget curl \
-  # Shell
-  byobu zsh \
-  terminator \
-  dbus-x11 libglvnd0 libgl1 libglx0 libegl1 libxext6 libx11-6 \
-  # Editing tools
-  nano vim gedit\
-  gnome-terminal libcanberra-gtk-module libcanberra-gtk3-module \
-  # Work tools
-  python3-pip python3-dev python3-setuptools \
-  python-pip python-catkin-tools python-setuptools \
-  # for using add-apt-repository
-  software-properties-common \
-  # Install lidar driver(urg_node)
-  ros-melodic-urg-node \
-  && mkdir -p /etc/udev/rules.d \
-  apt-get clean \
-  && rm -rf /var/lib/apt/lists
+    sudo htop git wget curl \
+    # Shell
+    byobu zsh \
+    terminator \
+    dbus-x11 libglvnd0 libgl1 libglx0 libegl1 libxext6 libx11-6 \
+    # Editing tools
+    nano vim gedit\
+    gnome-terminal libcanberra-gtk-module libcanberra-gtk3-module \
+    # Work tools
+    python3-pip python3-dev python3-setuptools \
+    python-pip python-catkin-tools python-setuptools \
+    # for using add-apt-repository
+    software-properties-common \
+    # Install lidar driver(urg_node)
+    ros-melodic-urg-node \
+    && mkdir -p /etc/udev/rules.d \
+    apt-get clean \
+    && rm -rf /var/lib/apt/lists
 
 ## Install realsense SDK
 RUN apt-get update \
@@ -63,7 +63,12 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists
 
-
+RUN apt-get update \
+    # && apt-get install -y ros-groovy-openslam-gmapping \
+    # install gmapping dependency
+    # && apt-get install -y ros-melodic-slam-gmapping \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists
 
 WORKDIR /home/${USER}/.tmp
 
