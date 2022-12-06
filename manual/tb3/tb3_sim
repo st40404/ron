@@ -67,19 +67,6 @@ reference webside : https://automaticaddison.com/how-to-launch-the-turtlebot3-si
 		obstacle_range: 3.0     ## robot detect range
 		inflation_radius: 0.5   ## obstacle range
 		
-	
-
-  std::cerr << "aaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
-  std::cerr << centered_laser_pose_.x << "  " << centered_laser_pose_.y << std::endl;
-  std::cerr << "aaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
-
-	  std::cerr << "aaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
-  std::cerr << ident.frame_id_ << std::endl;
-  std::cerr << ident.getOrigin().x() << std::endl;
-  std::cerr << ident.getOrigin().y() << std::endl;
-  std::cerr << ident.getOrigin().z() << std::endl;
-  
-
 
 
 
