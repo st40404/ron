@@ -12,3 +12,11 @@ S:      curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \ sudo apt-ke
 E:Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json": dial unix /var/run/docker.sock: connect: permission denied
 
 S: sudo chmod 666 /var/run/docker.sock
+
+3. Docker can't find your nvidia driver
+P: When you using notebook execute docker to run rviz and gazebo,
+   there have can't find driver problem,
+	because the function get_graph_card() in your docker run file,
+	find the other driver(not nvidia driver)
+
+S: add "--gpus all \" in your docker_run function 

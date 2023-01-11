@@ -1,0 +1,27 @@
+#### 1. solving can't read SD card problem 
+sudo add-apt-repository "deb [arch=amd64,i386] http://archive.ubuntu.com/ubuntu xenial univeirs"
+sudo apt-get update
+sudo apt-get install exfat-fuse exfat-utils
+
+#### 2. mount SD card
+## check your dick
+sudo fdisk -lu
+## change SD card mode
+sudo mkfs -t ext4 /dev/mmcblk1p1
+## make a folder
+sudo mkdir ~/fusion_ws
+## mount your SD card to this folder
+sudo mount /dev/mmcblk1p1 /home/nvidia/fusion_ws/
+## set auto mount 
+sudo vim /etc/fastab
+/dev/mmcblk2p5            /home/deeid-2/data/                     ext4           defaults                                     1 2
+## check mount whether success
+reboot
+mount
+## go to home, give the permission and control fan
+cd
+sudo ./jetson_clocks.sh
+## install detect tempurture tool
+sudo apt install lm-sensors
+## check current tempurture
+sensors

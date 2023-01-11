@@ -18,3 +18,42 @@
     # dependency
     git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
 
+# ORBSLAM2
+    # Pangolin
+    git clone https://github.com/zzx2GH/Pangolin.git
+    # ORBSLAM2
+    git clone https://github.com/BoomFan/ORB_SLAM2.git
+
+
+# setting (in docker)
+    ############## ORBSLAM2 ############
+    ## install Pangolin
+        #### open file CMakeList.txt in Pagolin/src
+        #### delete the following code 
+
+        find_package(FFMPEG QUIET)
+        if(BUILD_PANGOLIN_VIDEO AND FFMPEG_FOUND)
+        set(HAVE_FFMPEG 1)
+        list(APPEND INTERNAL_INC  ${FFMPEG_INCLUDE_DIRS} )
+        list(APPEND LINK_LIBS ${FFMPEG_LIBRARIES} )
+        list(APPEND HEADERS ${INCDIR}/video/drivers/ffmpeg.h)
+        list(APPEND SOURCES video/drivers/ffmpeg.cpp)
+        message(STATUS "ffmpeg Found and Enabled")
+        endif()
+        
+        #### build Pangolin
+        cd Pangolin
+        mkdir build
+        cd build
+        cmake ..
+        make
+        sudo make install
+    
+    ## install ORBSLAM2 dependency
+        ####
+        cd ORB_SLAM2
+        chmod +x build.sh
+        ./build.sh
+
+        chmod +x build_ros.sh
+        ./build_ros.sh

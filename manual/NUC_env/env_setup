@@ -1,6 +1,20 @@
-############################################
-############# install docker ###############  
-############################################
+######  1.  install vim     ######
+sudo apt-get install vim
+
+######  2.install google    ######
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt install wget
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt-get install -f
+
+######  3.install vscode    ######
+wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+sudo apt install code
+
+######  4. install docker  ######
 1. install docker library
 
 sudo apt-get update && sudo apt-get install -y \
@@ -56,11 +70,7 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 
-############# install success ###############
-
-#############################################
-############### other setup ################# 
-#############################################
+##  other docker setting
 
 1. create docker group
 
@@ -81,32 +91,15 @@ docker run hello-world
 5. let docker autostart when it start
 
 sudo systemctl enable docker.service
-############### finish setup #################
 
-##############################################
-########## NVIDIA-container-runtime ##########
-##############################################
-
-1. check your driver
-
-nvidia-smi
-
-2. install nvidia docker 
-
-sudo apt-get update && sudo apt-get install -y nvidia-docker2
-
-3. restart docker
-
-sudo systemctl restart docker
-
-4. create a container and delete it
-
-sudo docker run --rm --gpus all nvidia/cuda:11.0.3-basenv.04 nvidia-smi
-############### test finish ##################
-
-
-following the notion step to realize docker
-
-https://tku-iarc.notion.site/e4289dcac4024e06bdd51c33a62f073b
-
-
+######  5.build docker env ######
+mkdir -p fusion_ws/src
+cd fusion_ws/src
+git clone https://github.com/st40404/FusionSLAM.git
+mv FusionSLAM/* .
+rm -rf FusionSLAM
+cd docker
+sudo chmod 777 ./build.sh
+./build.sh
+sudo chmod 777 ./run.sh
+./run.sh

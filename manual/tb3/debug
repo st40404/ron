@@ -53,7 +53,13 @@
 		announce param and set the param in this node
 			double new_x;
 			node.getParam("newx",  new_x);
-		
+
+7. when roslaunch turtlebot3_bringup turtlebot3_core.launch,
+    and have following error:
+    P: ERROR: cannot launch node of type [rosserial_python/serial_node.py]: rosserial_python
+
+    S: install rosserial-python
+    sudo apt-get install ros-melodic-rosserial-python
 
 
 
