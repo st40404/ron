@@ -24,7 +24,30 @@
     # ORBSLAM2
     git clone https://github.com/BoomFan/ORB_SLAM2.git
 
+# TB3 setting (in docker)
+    ############## TB3 ############
+    ## USB port permission problem
+    ## ( when roslaunch tb3 driver and lidar driver )
+    sudo chmod 777 /dev/ttyACM0
+    sudo chmod 777 /dev/ttyACM1
+    ## Because I doesn't set stable port 
+    ## so after give the power
+    ## give tb3 USB port signal first, and give lidar power  
+     
+# Real test of TB3
+    ## TB3 driver
+    roslaunch turtlebot3_bringup turtlebot3_core.launch
+    ## lidar driver
+    roslaunch urg_node urg_lidar.launch
+    ## SLAM 
+    ## (you can choose SLAM method 
+    ## in slam_gmapping/gmapping/src/slam_gmapping.cpp)
+    ## in laserCallback class, change the value of int mymethod
+    roslaunch turtlebot3_slam turtlebot3_slam.launch 
+    ## Control TB3 motor
+    roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
 
+    
 # setting (in docker)
     ############## ORBSLAM2 ############
     ## install Pangolin
