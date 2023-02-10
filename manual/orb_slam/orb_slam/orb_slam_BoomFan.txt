@@ -80,7 +80,7 @@
     ## remove rgb, depths folder, and make rgb and depth folder
         cd Make-ORB-SLAM2-RGBD-dataset
         rm -rf rgb depths 
-        mkdir rgb depth
+        mkdir rgb depths
 
     ## delete the original rgb and depth file
         rm rgb.txt depth.txt associations.txt

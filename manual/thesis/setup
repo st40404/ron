@@ -73,10 +73,37 @@
         sudo make install
     
     ## install ORBSLAM2 dependency
-        ####
+        #### usleep(3000) Bug
+        #### add following title in ORB_SLAM2/include/System.h
+        
+        #include <unistd.h> 
+        
+
+        #### build base code
         cd ORB_SLAM2
         chmod +x build.sh
         ./build.sh
 
+        #### build Example/ROS/ORB_SLAM2
         chmod +x build_ros.sh
         ./build_ros.sh
+
+        ## if build build_ros.sh have problem,
+        ## check ~/.bashrc about export ROS_PATH_PACKAGE is correct,
+        ## and source ~/.bashrc
+        ## if it still have problem, execute following command
+
+        sudo rosdep fix-permissions
+        rosdep update
+
+
+
+# everytime when you rebuild your docker env,
+# you need to do following command in docker
+    ## can't build build.sh problem : without install Pangolin problem
+    cd ~/work/src/Pangolin/build
+    sudo make install 
+
+    ## can't build build_ros.sh problem
+    sudo rosdep fix-permissions
+    rosdep update
