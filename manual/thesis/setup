@@ -24,6 +24,13 @@
     # ORBSLAM2
     git clone https://github.com/BoomFan/ORB_SLAM2.git
 
+
+# UKF (now is trying UKF by user informramiz and shazraz)
+    # informramiz
+    git clone https://github.com/informramiz/Unscented-Kalman-Filter.git
+    # shazraz
+    git clone https://github.com/shazraz/Unscented-Kalman-Filter.git
+
 # TB3 setting (in docker)
     ############## TB3 ############
     ## USB port permission problem
