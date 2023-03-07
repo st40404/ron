@@ -86,14 +86,18 @@
         #include <unistd.h> 
         
 
-        #### build base code
+        #### build thirdparty library
         cd ORB_SLAM2
         chmod +x build.sh
         ./build.sh
 
-        #### build Example/ROS/ORB_SLAM2
-        chmod +x build_ros.sh
-        ./build_ros.sh
+
+        #### build Example/ROS/ORB_SLAM2 (original), 
+        #### in our pkg, we combine with catkin_make
+        # chmod +x build_ros.sh
+        # ./build_ros.sh
+
+
 
         ## if build build_ros.sh have problem,
         ## check ~/.bashrc about export ROS_PATH_PACKAGE is correct,
