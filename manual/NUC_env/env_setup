@@ -103,3 +103,17 @@ sudo chmod 777 ./build.sh
 ./build.sh
 sudo chmod 777 ./run.sh
 ./run.sh
+
+##### in Docker 
+## 1. If you execute urg_node, and get following error
+## Error connecting to Hokuyo: Could not open serial Hokuyo
+## give usb port permission
+sudo chmod 777 /dev/ttyACM0
+
+## 2. If you execute realsense_camera rs_rgbd.launch
+## and you got failed to load nodelet problem
+## change add-apt-repository in dockerfile
+# from 
+deb https://librealsense.intel.com/Debian/apt-repo xenial main
+# to 
+deb https://librealsense.intel.com/Debian/apt-repo bionic main

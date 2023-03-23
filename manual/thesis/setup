@@ -85,20 +85,16 @@
         
         #include <unistd.h> 
         
-
         #### build thirdparty library
         cd ORB_SLAM2
         chmod +x build.sh
         ./build.sh
 
-
         #### build Example/ROS/ORB_SLAM2 (original), 
         #### in our pkg, we combine with catkin_make
         # chmod +x build_ros.sh
         # ./build_ros.sh
-
-
-
+        
         ## if build build_ros.sh have problem,
         ## check ~/.bashrc about export ROS_PATH_PACKAGE is correct,
         ## and source ~/.bashrc
@@ -106,6 +102,106 @@
 
         sudo rosdep fix-permissions
         rosdep update
+
+    #### set camera dataset
+    # put  src/ORB_SLAM2/Vocabulary/ORBvoc.txt to  src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data/
+    # set your camera calibration setting associations.txt, TUM3.yaml and two folder => dapth, rgb
+    ## and put them to src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data/
+
+    ## remove rgb, depths folder, and make rgb and depth folder
+        cd ~/*ws/src/Make-ORB-SLAM2-RGBD-dataset        
+        rm -rf rgb depths 
+        mkdir rgb depths
+
+    ## delete the original rgb and depth file
+        rm rgb.txt depth.txt associations.txt
+
+    ## install pyrealsense2
+        pip2 install pyrealsense2
+
+    ## execute rs-get-Sequence.py to get data and png, and put into rgb and depth folder
+    ## press s to start, and ctrl+c to terminate
+        python rs-get-Sequence.py 
+    ## and you can get image in rgb and depth folder, rgb.txt and depth.txt
+
+    ## combine rgb.txt and depth.txt by associate.py
+        python associate.py --rgb_path rgb.txt --depth_path depth.txt --output associations.txt
+    ## put rgb folder, depth folder, and associations.txt to ./Examples/ROS/ORB_SLAM2/data
+
+    ## copy TUM3.yaml from /ORB_SLAM2/Examples/RGB-D to ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+    
+    ## and set your TUM3.yaml data
+        cd ~/orb_slam2/src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data
+        cp ../../../RGB-D/TUM3.yaml ./TUM3.yaml
+
+        ## open realsense and get info
+        roslaunch realsense2_camera rs_rgbd.launch 
+        rostopic echo /camera/color/camera_info
+
+        ## you can get in following param from camera_info
+        ## K:[x1, x2, x3, y1, y2, y3, z1, z2, z3]
+            Camera.fx : x1
+            Camera.fy : y2 
+            Camera.cx : x3
+            Camera.cy : y3
+
+        Camera.k1: 0.0
+        Camera.k2: 0.0
+        Camera.p1: 0.0
+        Camera.p2: 0.0
+
+        Camera.width: 1280
+        Camera.height: 720
+
+        ## get the other data from realsense webside
+            # Camera frames per second 
+            Camera.fps: 30.0
+
+            # IR projector baseline times fx (aprox.)
+            Camera.bf: 46.1
+
+            # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+            Camera.RGB: 1
+
+            # Close/Far threshold. Baseline times.
+            ThDepth: 40.0
+
+            # Deptmap values factor
+            DepthMapFactor: 1000.0
+        #--------------------------------------------------------------------------------------------
+        # ORB Parameters
+        #--------------------------------------------------------------------------------------------
+
+        # ORB Extractor: Number of features per image
+        ORBextractor.nFeatures: 500
+
+        # ORB Extractor: Scale factor between levels in the scale pyramid 	
+        ORBextractor.scaleFactor: 1.2
+
+        # ORB Extractor: Number of levels in the scale pyramid	
+        ORBextractor.nLevels: 8
+
+        # ORB Extractor: Fast threshold
+        # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+        # Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+        # You can lower these values if your images have low contrast			
+        ORBextractor.iniThFAST: 20
+        ORBextractor.minThFAST: 7
+
+        #--------------------------------------------------------------------------------------------
+        # Viewer Parameters
+        #--------------------------------------------------------------------------------------------
+        Viewer.KeyFrameSize: 0.05
+        Viewer.KeyFrameLineWidth: 1
+        Viewer.GraphLineWidth: 0.9
+        Viewer.PointSize:2
+        Viewer.CameraSize: 0.08
+        Viewer.CameraLineWidth: 3
+        Viewer.ViewpointX: 0
+        Viewer.ViewpointY: -0.7
+        Viewer.ViewpointZ: -1.8
+        Viewer.ViewpointF: 500
+
 
 
 
@@ -115,6 +211,8 @@
     cd ~/work/src/Pangolin/build
     sudo make install 
 
-    ## can't build build_ros.sh problem
-    sudo rosdep fix-permissions
-    rosdep update
+# give lidar permission
+# everytime usb signal sequence is tb3->lidar->camera
+
+    sudo chmod 777 /dev/ttyACM0
+    sudo chmod 777 /dev/ttyACM1
