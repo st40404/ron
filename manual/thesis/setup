@@ -31,6 +31,14 @@
     # shazraz
     git clone https://github.com/shazraz/Unscented-Kalman-Filter.git
 
+# gazebo env
+    # bookstore
+    git clone https://github.com/aws-robotics/aws-robomaker-bookstore-world.git
+    # small warehouse
+    git clone https://github.com/aws-robotics/aws-robomaker-small-warehouse-world.git
+
+
+
 # TB3 setting (in docker)
     ############## TB3 ############
     ## USB port permission problem
@@ -201,6 +209,44 @@
         Viewer.ViewpointY: -0.7
         Viewer.ViewpointZ: -1.8
         Viewer.ViewpointF: 500
+
+
+
+
+# make my own rosbag in sim
+# need to record following topic
+    /scan 
+    /camera/depth/image_raw
+    /camera/rgb/image_raw
+    /odom
+    /joint_states 
+
+# open gazebo
+    roslaunch turtlebot3_gazebo turblebot3_bookstore.launch
+
+# rosbag record 
+    rosbag record -O sim_bag /scan /camera/depth/image_raw /camera/rgb/image_raw /odom /joint_states /tf
+
+    rosbag record -b 1024 /scan /camera/depth/image_raw /camera/rgb/image_raw /odom /joint_states /tf
+
+    ## use RAM to storage, but almost two min
+    rosbag record -b 0 /scan /odom /tf /camera/depth/image_raw /camera/rgb/image_raw
+
+# play rosbag
+    ## use sim time, but I write in turtlebot3_slam.launch
+    rosparam set use_sim_time true
+
+    ## ROS will now get time from the bag 
+    rosbag play --clock sim_bag.bag
+
+    ## or write rosbag play in launch
+    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(find savebag)/bag/sim_bag.bag"/>
+
+    ## adjust rosbag play speed, to make lidar SLAM can calculate
+    rosbag play -r 0.3 --clock src/savebag/bag/sim_bag.bag 
+
+# execute sequence
+    orbslam2 >> rosbag >> gmapping_slam
 
 
 
