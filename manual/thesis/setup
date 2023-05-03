@@ -251,6 +251,59 @@
 
 
 
+
+
+
+
+# use my pkg from github(ubuntu)
+    # make workspace and git clone pkg
+        mkdir -p fusion_ws/src
+        cd fusion_ws/src
+        git clone https://github.com/st40404/FusionSLAM.git
+        git clone https://github.com/aws-robotics/aws-robomaker-bookstore-world.git
+
+        git clone https://github.com/aws-robotics/aws-robomaker-small-warehouse-world.git
+
+        mv FusionSLAM/* .
+        mv FusionSLAM/.git/ .
+        rm -rf FusionSLAM/
+        cd docker
+        ./build.sh
+        ./run.sh
+
+# use my pkg from github(docker)
+    # set env of docker
+        # install Pangolin and build ORBSLAM2
+            cd src/Pangolin/build/
+            sudo make install
+            cd ../../ORB_SLAM2/
+            ./build.sh 
+            cd ../..
+            catkin_make
+
+    # set ORBSLAM2 param
+        cp -r src/all_process/other_data/data/ src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/
+
+        cp src/ORB_SLAM2/Vocabulary/ORBvoc.txt src/ORB_SLAM2/Examples/ROS/ORB_SLAM2/data/
+
+    # set gazebo env
+        rm src/aws-robomaker-bookstore-world/worlds/bookstore.world 
+
+        cp src/all_process/other_data/bookstore.world src/aws-robomaker-bookstore-world/worlds/
+    
+    # record your bag
+        roslaunch turtlebot3_gazebo turtlebot3_bookstore.launch
+
+        rosbag record -b 0 /scan /odom /tf /camera/depth/image_raw /camera/rgb/image_raw
+
+        # change bag name as short_test.bag, and put into savebag/bag folder
+        mkdir src/savebag/bag
+        mv xxxxxx.bag src/savebag/bag
+
+        
+
+
+
 # everytime when you rebuild your docker env,
 # you need to do following command in docker
     ## can't build build.sh problem : without install Pangolin problem
@@ -262,3 +315,8 @@
 
     sudo chmod 777 /dev/ttyACM0
     sudo chmod 777 /dev/ttyACM1
+
+# if you can't open Gazebo in docker
+# add following code in src/docker/run.sh
+# in function docker_run()
+    --gpus all \
