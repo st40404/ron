@@ -225,9 +225,9 @@
     roslaunch turtlebot3_gazebo turblebot3_bookstore.launch
 
 # rosbag record 
-    rosbag record -O sim_bag /scan /camera/depth/image_raw /camera/rgb/image_raw /odom /joint_states /tf
+    rosbag record -O sim_bag /scan /odom /tf /camera/depth/image_raw /camera/rgb/image_raw
 
-    rosbag record -b 1024 /scan /camera/depth/image_raw /camera/rgb/image_raw /odom /joint_states /tf
+    rosbag record -b 1024 /scan /odom /tf /camera/depth/image_raw /camera/rgb/image_raw
 
     ## use RAM to storage, but almost two min
     rosbag record -b 0 /scan /odom /tf /camera/depth/image_raw /camera/rgb/image_raw
